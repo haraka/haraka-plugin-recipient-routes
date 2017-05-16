@@ -5,7 +5,7 @@ if [ -z "$1" ]; then
   exit
 fi
 
-sed -i '' -e "s/template/fcrdns/g" README.md
+sed -i '' -e "s/template/${1}/g" README.md
 
 sed -i '' \
     -e "s/template/${1}/g" \
