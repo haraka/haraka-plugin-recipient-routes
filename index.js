@@ -1,12 +1,12 @@
 'use strict';
 
 exports.register = function () {
-    var plugin = this;
+    let plugin = this;
     plugin.load_template_ini();
 }
 
 exports.load_template_ini = function () {
-    var plugin = this;
+    let plugin = this;
 
     plugin.cfg = plugin.config.get('template.ini', {
         booleans: [
