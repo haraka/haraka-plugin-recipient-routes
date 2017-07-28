@@ -1,93 +1,88 @@
-[![Build Status][ci-img]][ci-url]
-[![Code Climate][clim-img]][clim-url]
-[![Greenkeeper badge][gk-img]][gk-url]
-[![NPM][npm-img]][npm-url]
-<!-- requires URL update [![Windows Build Status][ci-win-img]][ci-win-url] -->
-<!-- doesn't work in haraka plugins... yet. [![Code Coverage][cov-img]][cov-url]-->
+# rcpt_to.routes
 
-# haraka-plugin-recipient-routes
+Recipient Routes does two things: recipient validation and MX routing.
 
-Clone me, to create a new plugin!
+## Recipient Validation
 
-# Template Instructions
+Recipients can be listed in the [routes] section of the config file
+`config/rcpt_to.routes.ini` or in Redis. If Redis is available, it is checked
+first. Then the config file is checked.
 
-These instructions will not self-destruct after use. Use and destroy.
+Entries can be email addresses or domains. If both are present, email
+addresses are favored.
 
-See also, [How to Write a Plugin](https://github.com/haraka/Haraka/wiki/Write-a-Plugin) and [Plugins.md](https://github.com/haraka/Haraka/blob/master/docs/Plugins.md) for additional plugin writing information.
+If no route is discovered, recipient processing continues, allowing other
+recipient plugins to vouch for the recipient. If none does, the recipient is
+rejected.
 
-## Create a new repo for your plugin
+### Order of Recipient Search
 
-Haraka plugins are named like `haraka-plugin-something`. All the namespace
-after `haraka-plugin-` is yours for the taking. Please check the [Plugins]() page and a Google search to see what plugins already exist.
+1. Redis email
+2. Redis domain
+3. File email
+4. File domain
 
-Once you've settled on a name, create the GitHub repo. On the repo's main page, click the _Clone or download_ button and copy the URL. Then paste that URL into a local ENV variable with a command like this:
+## MX Routing
 
-```sh
-export MY_PLUGIN_NAME=haraka-plugin-SOMETHING
-export MY_PLUGIN_REPO=git@github.com:SOME_ORG/haraka-plugin-SOMETHING.git
-```
+NOTE: MX routing by default routes *only* based on domains. To route for email
+addresses, you must set the preference `always_split=true` in
+'config/outbound.ini'.
 
-Clone and rename the recipient-routes repo:
+Each entry in the [routes] section of `config/rcpt_to.routes.ini` or in Redis
+must specify a MX record. The MX record is the same format as _outbound.js_.
+Examples:
 
-```sh
-git clone git@github.com:haraka/haraka-plugin-recipient-routes.git
-mv haraka-plugin-recipient-routes $MY_PLUGIN_NAME
-cd $MY_PLUGIN_NAME
-git remote rm origin
-git remote add origin $MY_PLUGIN_REPO
-```
+    * hostname
+    * hostname:port
+    * ipaddress
+    * ipaddress:port
+    * { priority: 0, exchange: hostname, port: 25 }
 
-Now you'll have a local git repo to begin authoring your plugin
+## Configuration
 
-## rename boilerplate
+The following options can be specified in `config/rcpt_to.routes.ini`:
 
-Replaces all uses of the word `recipient-routes` with your plugin's name.
+### Redis
 
-./redress.sh [something]
+The [redis] section has three optional settings (defaults shown):
 
-You'll then be prompted to update package.json and then force push this repo onto the GitHub repo you've created earlier.
+    [redis]
+    host=127.0.0.1
+    port=6379
+    db=0
 
+### Routes
 
-## Enable Travis-CI testing
+The [routes] section can include routes for domains and email addresses:
 
-- [ ] visit your [Travis-CI profile page](https://travis-ci.org/profile) and enable Continuous Integration testing on the repo
-- [ ] enable Code Climate. Click the _code climate_ badge and import your repo.
+    [routes]
+    example.com=mail.example.com:225
+    matt@example.com=some.where.com
+    spam@example.com=honeybucket.where.com:26
 
+You may also use URI format to specify SMTP vs LMTP:
 
+    [routes]
+    aaron@example.com=lmtp://mail.example.com:2525
+    matt@example.com=smtp://127.0.0.1:4242
 
-# Add your content here
+# Performance
 
-## INSTALL
+## File based
 
-```sh
-cd /path/to/local/haraka
-npm install haraka-plugin-recipient-routes
-echo "recipient-routes" >> config/plugins
-service haraka restart
-```
+Routes from the config file are loaded into an object at server startup. If
+the config file changes, the routes automatically update. Key lookups in the
+object are extremely fast. In 2014, the author measured 450,000 qps against
+a 92,000 key object on a Xeon E5-2620 @ 2.10GHz.
 
-### Configuration
+## Redis
 
-If the default configuration is not sufficient, copy the config file from the distribution into your haraka config dir and then modify it:
+The benchmarks published by the author(s) of the Node 'redis' module are
+about 30,000 qps.
 
-```sh
-cp node_modules/haraka-plugin-recipient-routes/config/recipient-routes.ini config/recipient-routes.ini
-$EDITOR config/recipient-routes.ini
-```
+# Author
 
-## USAGE
+Matt Simerson.
 
-
-<!-- leave these buried at the bottom of the document -->
-[ci-img]: https://travis-ci.org/haraka/haraka-plugin-recipient-routes.svg
-[ci-url]: https://travis-ci.org/haraka/haraka-plugin-recipient-routes
-[ci-win-img]: https://ci.appveyor.com/api/projects/status/CHANGETHIS?svg=true
-[ci-win-url]: https://ci.appveyor.com/project/haraka/haraka-CHANGETHIS
-[cov-img]: https://codecov.io/github/haraka/haraka-plugin-recipient-routes/coverage.svg
-[cov-url]: https://codecov.io/github/haraka/haraka-plugin-recipient-routes
-[clim-img]: https://codeclimate.com/github/haraka/haraka-plugin-recipient-routes/badges/gpa.svg
-[clim-url]: https://codeclimate.com/github/haraka/haraka-plugin-recipient-routes
-[gk-img]: https://badges.greenkeeper.io/haraka/haraka-plugin-recipient-routes.svg
-[gk-url]: https://greenkeeper.io/
-[npm-img]: https://nodei.co/npm/haraka-plugin-recipient-routes.png
-[npm-url]: https://www.npmjs.com/package/haraka-plugin-recipient-routes
+Underwritten and graciously donated to the Haraka community
+by [Serious Mumbo, Inc.](http://seriousmumbo.com)
