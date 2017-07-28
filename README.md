@@ -2,7 +2,7 @@
 [![Code Climate][clim-img]][clim-url]
 [![Greenkeeper badge][gk-img]][gk-url]
 [![NPM][npm-img]][npm-url]
-<!-- requires URL update [![Windows Build Status][ci-win-img]][ci-win-url] -->
+[![Windows Build Status][ci-win-img]][ci-win-url]
 <!-- doesn't work in haraka plugins... yet. [![Code Coverage][cov-img]][cov-url]-->
 
 
@@ -98,8 +98,8 @@ by [Serious Mumbo, Inc.](http://seriousmumbo.com)
 
 [ci-img]: https://travis-ci.org/haraka/haraka-plugin-recipient-routes.svg
 [ci-url]: https://travis-ci.org/haraka/haraka-plugin-recipient-routes
-[ci-win-img]: https://ci.appveyor.com/api/projects/status/CHANGETHIS?svg=true
-[ci-win-url]: https://ci.appveyor.com/project/haraka/haraka-CHANGETHIS
+[ci-win-img]: https://ci.appveyor.com/api/projects/status/9vhq04hbiaesc46o?svg=true
+[ci-win-url]: https://ci.appveyor.com/project/msimerson/haraka-plugin-recipient-routes
 [cov-img]: https://codecov.io/github/haraka/haraka-plugin-recipient-routes/coverage.svg
 [cov-url]: https://codecov.io/github/haraka/haraka-plugin-recipient-routes
 [clim-img]: https://codeclimate.com/github/haraka/haraka-plugin-recipient-routes/badges/gpa.svg
