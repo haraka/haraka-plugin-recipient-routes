@@ -20,7 +20,8 @@ sed -i '' \
     
 mv config/template.ini config/$1.ini
 
-git add package.json README.md index.js test/index.js 
+git mv config/template.ini "config/$1.ini"
+git add package.json README.md index.js test config
 git commit -m "renamed template to $1"
 npm install
 npm run lint && npm test || exit 1
