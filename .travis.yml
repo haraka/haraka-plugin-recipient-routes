@@ -7,7 +7,7 @@ services:
 # https://docs.travis-ci.com/user/database-setup/
 #  - mongodb
 #  - elasticsearch
-#  - redis-server
+  - redis-server
 
 before_script:
 

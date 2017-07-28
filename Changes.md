@@ -1,4 +1,4 @@
 
-# 1.0.0 - 201_-__-__
+# 1.0.0 - 2017-07-28
 
-- initial release
+- imported from haraka/plugins/rcpt_to.routes
