@@ -2,13 +2,13 @@
 
 exports.register = function () {
     let plugin = this;
-    plugin.load_template_ini();
+    plugin.load_recipient-routes_ini();
 }
 
-exports.load_template_ini = function () {
+exports.load_recipient-routes_ini = function () {
     let plugin = this;
 
-    plugin.cfg = plugin.config.get('template.ini', {
+    plugin.cfg = plugin.config.get('recipient-routes.ini', {
         booleans: [
             '+enabled',               // plugins.cfg.main.enabled=true
             '-disabled',              // plugins.cfg.main.disabled=false

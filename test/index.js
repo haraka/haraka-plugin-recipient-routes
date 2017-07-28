@@ -10,26 +10,26 @@ const fixtures = require('haraka-test-fixtures');
 //    mocha: http://mochajs.org
 
 beforeEach(function (done) {
-    this.plugin = new fixtures.plugin('template');
+    this.plugin = new fixtures.plugin('recipient-routes');
     done();  // if a test hangs, assure you called done()
 });
 
-describe('template', function () {
+describe('recipient-routes', function () {
     it('loads', function (done) {
         assert.ok(this.plugin);
         done();
     });
 });
 
-describe('load_template_ini', function () {
-    it('loads template.ini from config/template.ini', function (done) {
-        this.plugin.load_template_ini();
+describe('load_recipient-routes_ini', function () {
+    it('loads recipient-routes.ini from config/recipient-routes.ini', function (done) {
+        this.plugin.load_recipient-routes_ini();
         assert.ok(this.plugin.cfg);
         done();
     });
 
     it('initializes enabled boolean', function (done) {
-        this.plugin.load_template_ini();
+        this.plugin.load_recipient-routes_ini();
         assert.equal(this.plugin.cfg.main.enabled, true, this.plugin.cfg);
         done();
     });
