@@ -1,6 +1,13 @@
 # rcpt_to.routes
 
-Recipient Routes does two things: recipient validation and MX routing.
+Recipient Routes does recipient validation and MX routing.
+
+[![Build Status][ci-img]][ci-url]
+[![Windows Build Status][ci-win-img]][ci-win-url]
+[![Code Climate][clim-img]][clim-url]
+[![Greenkeeper badge][gk-img]][gk-url]
+[![NPM][npm-img]][npm-url]
+
 
 ## Recipient Validation
 
@@ -86,3 +93,19 @@ Matt Simerson.
 
 Underwritten and graciously donated to the Haraka community
 by [Serious Mumbo, Inc.](http://seriousmumbo.com)
+
+
+<!-- leave these buried at the bottom of the document -->
+[ci-img]: https://travis-ci.org/haraka/haraka-plugin-recipient-routes.svg
+[ci-url]: https://travis-ci.org/haraka/haraka-plugin-recipient-routes
+[ci-win-img]: https://ci.appveyor.com/api/projects/status/9vhq04hbiaesc46o?svg=true
+[ci-win-url]: https://ci.appveyor.com/project/msimerson/haraka-plugin-recipient-routes
+[cov-img]: https://codecov.io/github/haraka/haraka-plugin-recipient-routes/coverage.svg
+[cov-url]: https://codecov.io/github/haraka/haraka-plugin-recipient-routes
+[clim-img]: https://codeclimate.com/github/haraka/haraka-plugin-recipient-routes/badges/gpa.svg
+[clim-url]: https://codeclimate.com/github/haraka/haraka-plugin-recipient-routes
+[gk-img]: https://badges.greenkeeper.io/haraka/haraka-plugin-recipient-routes.svg
+[gk-url]: https://greenkeeper.io/
+[npm-img]: https://nodei.co/npm/haraka-plugin-recipient-routes.png
+[npm-url]: https://www.npmjs.com/package/haraka-plugin-recipient-routes
+
