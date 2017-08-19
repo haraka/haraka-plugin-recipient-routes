@@ -3,10 +3,10 @@ environment:
 
 install:
   - ps: Install-Product node $env:nodejs_version
-	- choco install redis-64
+  - npm install
+  - choco install redis-64
   - redis-server --service-install
   - redis-server --service-start
-  - npm install
 
 before_build:
 build: off
