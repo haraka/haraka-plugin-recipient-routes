@@ -3,10 +3,10 @@
 // validates incoming recipients against flat file & Redis
 // routes mail based on per-email or per-domain specified routes
 
-var urlparser = require('url');
+const urlparser = require('url');
 
 exports.register = function () {
-    var plugin = this;
+    const plugin = this;
     plugin.inherits('haraka-plugin-redis');
 
     plugin.cfg = {};
@@ -23,23 +23,23 @@ exports.register = function () {
 };
 
 exports.load_rcpt_to_routes_ini = function () {
-    var plugin = this;
+    const plugin = this;
     plugin.cfg = plugin.config.get('rcpt_to.routes.ini', function () {
         plugin.load_rcpt_to_routes_ini();
     });
 
     if (!plugin.cfg.redis) plugin.cfg.redis = {};
-    var r = plugin.cfg.redis;
+    const r = plugin.cfg.redis;
 
     plugin.cfg.redis.opts = {
         host: r.server_ip || r.host || '127.0.0.1',
         port: r.server_port || r.port || 6379,
     };
 
-    var lowered = {};
+    const lowered = {};
     if (plugin.cfg.routes) {
-        var keys = Object.keys(plugin.cfg.routes);
-        for (var i=0; i < keys.length; i++) {
+        const keys = Object.keys(plugin.cfg.routes);
+        for (let i=0; i < keys.length; i++) {
             lowered[keys[i].toLowerCase()] = plugin.cfg.routes[keys[i]];
         }
         plugin.route_list = lowered;
@@ -47,11 +47,11 @@ exports.load_rcpt_to_routes_ini = function () {
 };
 
 exports.rcpt = function (next, connection, params) {
-    var plugin = this;
-    var txn = connection.transaction;
+    const plugin = this;
+    const txn = connection.transaction;
     if (!txn) { return next(); }
 
-    var rcpt = params[0];
+    const rcpt = params[0];
 
     // ignore RCPT TO without an @ first
     if (!rcpt.host) {
@@ -59,10 +59,10 @@ exports.rcpt = function (next, connection, params) {
         return next();
     }
 
-    var address = rcpt.address().toLowerCase();
-    var domain = rcpt.host.toLowerCase();
+    const address = rcpt.address().toLowerCase();
+    const domain = rcpt.host.toLowerCase();
 
-    var do_file_search = function () {
+    const do_file_search = function () {
         if (plugin.route_list[address]) {
             txn.results.add(plugin, {pass: 'file.email'});
             return next(OK);
@@ -105,10 +105,10 @@ exports.rcpt = function (next, connection, params) {
 };
 
 exports.get_mx = function (next, hmail, domain) {
-    var plugin = this;
+    const plugin = this;
 
     // get email address
-    var address = domain.toLowerCase();
+    let address = domain.toLowerCase();
     if (hmail && hmail.todo && hmail.todo.rcpt_to && hmail.todo.rcpt_to[0]) {
         address = hmail.todo.rcpt_to[0].address().toLowerCase();
     }
@@ -116,11 +116,11 @@ exports.get_mx = function (next, hmail, domain) {
         plugin.logerror('no rcpt from hmail, falling back to domain' );
     }
 
-    var do_file_search = function () {
-        var mx = {};
+    const do_file_search = function () {
+        const mx = {};
         // check email adress for route
         if (plugin.route_list[address]) {
-            var uri = new urlparser.parse(plugin.route_list[address]);
+            const uri = new urlparser.parse(plugin.route_list[address]);
             if ( uri.protocol == 'lmtp:' ) {
                 mx.exchange = uri.hostname;
                 mx.port = uri.port;

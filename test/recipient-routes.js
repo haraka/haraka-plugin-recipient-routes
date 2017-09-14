@@ -1,9 +1,9 @@
 'use strict';
 
-var Address      = require('address-rfc2821').Address;
-var fixtures     = require('haraka-test-fixtures');
+const Address      = require('address-rfc2821').Address;
+const fixtures     = require('haraka-test-fixtures');
 
-var hmail = {
+const hmail = {
     todo: {
         "queue_time":1402091363826,
         "domain":"example.com",
@@ -18,7 +18,7 @@ var hmail = {
     },
 };
 
-var _set_up_file = function (done) {
+const _set_up_file = function (done) {
 
     this.server = {};
     this.plugin = new fixtures.plugin('index');
@@ -31,7 +31,7 @@ var _set_up_file = function (done) {
     done();
 };
 
-var _set_up_redis = function (done) {
+const _set_up_redis = function (done) {
 
     this.server = {};
     this.plugin = new fixtures.plugin('index');
@@ -46,7 +46,7 @@ var _set_up_redis = function (done) {
         return;
     };
 
-    var t = this;
+    const t = this;
     this.plugin.init_redis_shared(function (err) {
         if (err) {
             console.error(err.message);
@@ -64,7 +64,7 @@ var _set_up_redis = function (done) {
     }, this.plugin.server);
 };
 
-var _tear_down_redis = function (done) {
+const _tear_down_redis = function (done) {
     this.plugin.delete_route('matt@example.com', done);
 };
 
@@ -72,7 +72,7 @@ exports.rcpt_file = {
     setUp : _set_up_file,
     'miss' : function (test) {
         test.expect(2);
-        var cb = function (rc, msg) {
+        const cb = function (rc, msg) {
             test.equal(rc, undefined);
             test.equal(msg, undefined);
             test.done();
@@ -82,7 +82,7 @@ exports.rcpt_file = {
     },
     'hit' : function (test) {
         test.expect(2);
-        var cb = function (rc, msg) {
+        const cb = function (rc, msg) {
             test.equal(rc, OK);
             test.equal(msg, undefined);
             test.done();
@@ -97,11 +97,11 @@ exports.rcpt_redis = {
     setUp : _set_up_redis,
     tearDown : _tear_down_redis,
     'miss' : function (test) {
-        var addr = new Address('<matt@example.com>');
+        const addr = new Address('<matt@example.com>');
         if (this.plugin.redis_pings) {
             this.plugin.delete_route(addr.address());
             test.expect(2);
-            var cb = function (rc, msg) {
+            const cb = function (rc, msg) {
                 test.equal(rc, undefined);
                 test.equal(msg, undefined);
                 test.done();
@@ -115,11 +115,11 @@ exports.rcpt_redis = {
         }
     },
     'hit' : function (test) {
-        var addr = new Address('<matt@example.com>');
+        const addr = new Address('<matt@example.com>');
         if (this.plugin.redis_pings) {
             this.plugin.insert_route(addr.address(),'192.168.2.1');
             test.expect(2);
-            var cb = function (rc, msg) {
+            const cb = function (rc, msg) {
                 test.equal(rc, OK);
                 test.equal(msg, undefined);
                 test.done();
@@ -137,31 +137,31 @@ exports.get_mx_file = {
     setUp : _set_up_file,
     'email address file hit' : function (test) {
         test.expect(2);
-        var cb = function (rc, mx) {
+        const cb = function (rc, mx) {
             test.equal(rc, OK);
             test.equal(mx, '192.168.1.1');
             test.done();
         };
 
         this.plugin.route_list = {'matt@example.com': '192.168.1.1'};
-        var addr = new Address('<matt@example.com>');
+        const addr = new Address('<matt@example.com>');
         this.plugin.get_mx(cb, hmail, addr.host);
     },
     'email domain file hit' : function (test) {
         test.expect(2);
-        var cb = function (rc, mx) {
+        const cb = function (rc, mx) {
             test.equal(rc, OK);
             test.equal(mx, '192.168.1.2');
             test.done();
         };
 
         this.plugin.route_list = {'example.com': '192.168.1.2'};
-        var addr = new Address('<matt@example.com>');
+        const addr = new Address('<matt@example.com>');
         this.plugin.get_mx(cb, hmail, addr.host);
     },
     'address preferred file' : function (test) {
         test.expect(2);
-        var cb = function (rc, mx) {
+        const cb = function (rc, mx) {
             test.equal(rc, OK);
             test.equal(mx, '192.168.1.1');
             test.done();
@@ -171,7 +171,7 @@ exports.get_mx_file = {
             'matt@example.com': '192.168.1.1',
             'example.com': '192.168.1.2',
         };
-        var addr = new Address('<matt@example.com>');
+        const addr = new Address('<matt@example.com>');
         this.plugin.get_mx(cb, hmail, addr.host);
     },
 };
@@ -186,10 +186,10 @@ exports.get_mx_redis = {
             return;
         }
 
-        var addr = new Address('<matt@example.com>');
+        const addr = new Address('<matt@example.com>');
         test.expect(2);
         this.plugin.insert_route('matt@example.com','192.168.2.1');
-        var cb = function (rc, mx) {
+        const cb = function (rc, mx) {
             test.equal(rc, OK);
             test.equal(mx, '192.168.2.1');
             test.done();
@@ -204,10 +204,10 @@ exports.get_mx_redis = {
             return;
         }
 
-        var addr = new Address('<matt@example.com>');
+        const addr = new Address('<matt@example.com>');
         test.expect(2);
         this.plugin.insert_route(addr.address(),'192.168.2.2');
-        var cb = function (rc, mx) {
+        const cb = function (rc, mx) {
             test.equal(rc, OK);
             test.equal(mx, '192.168.2.2');
             test.done();
@@ -225,9 +225,9 @@ exports.get_mx_redis = {
         test.expect(2);
         this.plugin.insert_route('matt@example.com','192.168.2.1');
         this.plugin.insert_route(     'example.com','192.168.2.2');
-        var addr = new Address('<matt@example.com>');
+        const addr = new Address('<matt@example.com>');
 
-        var cb = function (rc, mx) {
+        const cb = function (rc, mx) {
             test.equal(rc, OK);
             test.equal(mx, '192.168.2.1');
             test.done();
