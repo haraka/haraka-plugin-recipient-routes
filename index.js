@@ -142,7 +142,7 @@ exports.get_mx = function (next, hmail, domain) {
             return next(OK, plugin.route_list[domain]);
         }
 
-        plugin.loginfo('using DNS MX for: ' + address);
+        plugin.loginfo(`using DNS MX for: ${address}`);
         return next();
     };
 
