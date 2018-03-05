@@ -1,4 +1,10 @@
 
+## 1.0.2 - 2018-03-05
+
+- for MX entries, previously only full email address matches in the file were parsed for LMTP/SMTP routes. Now all MX entries are parsed (email file, email domain, email redis, and domain redis) for URIs.
+- use es6 arrow functions
+- refactored the functions in rcpt() into separate functions (simplify, more testable)
+
 ## 1.0.1 - 2017-08-19
 
 - enable Redis install on AppVeyor CI testing

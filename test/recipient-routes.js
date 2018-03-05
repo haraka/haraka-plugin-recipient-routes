@@ -18,7 +18,7 @@ const hmail = {
     },
 };
 
-const _set_up_file = function (done) {
+function _set_up_file (done) {
 
     this.server = {};
     this.plugin = new fixtures.plugin('index');
@@ -29,9 +29,9 @@ const _set_up_file = function (done) {
     this.connection.transaction.results = new fixtures.results(this.connection);
 
     done();
-};
+}
 
-const _set_up_redis = function (done) {
+function _set_up_redis (done) {
 
     this.server = {};
     this.plugin = new fixtures.plugin('index');
@@ -62,36 +62,51 @@ const _set_up_redis = function (done) {
             done(err2, result);
         });
     }, this.plugin.server);
-};
+}
 
-const _tear_down_redis = function (done) {
+function _tear_down_redis (done) {
     this.plugin.delete_route('matt@example.com', done);
-};
+}
 
 exports.rcpt_file = {
     setUp : _set_up_file,
     'miss' : function (test) {
         test.expect(2);
-        const cb = function (rc, msg) {
+        function cb (rc, msg) {
             test.equal(rc, undefined);
             test.equal(msg, undefined);
             test.done();
-        }.bind(this);
-        this.plugin.rcpt(cb, this.connection,
-            [ new Address('<matt@example.com>') ]);
+        }
+        this.plugin.rcpt(cb, this.connection, [ new Address('<matt@example.com>') ]);
     },
     'hit' : function (test) {
         test.expect(2);
-        const cb = function (rc, msg) {
+        function cb (rc, msg) {
             test.equal(rc, OK);
             test.equal(msg, undefined);
             test.done();
-        }.bind(this);
+        }
         this.plugin.route_list = {'matt@example.com': '192.168.1.1'};
-        this.plugin.rcpt(cb, this.connection,
-            [new Address('<matt@example.com>')]);
+        this.plugin.rcpt(cb, this.connection, [new Address('<matt@example.com>')]);
     },
-};
+    'missing domain' : function (test) {
+        test.expect(1);
+        function cb (rc, msg) {
+            test.done();
+        }
+        this.plugin.route_list = {'matt@example.com': '192.168.1.1'};
+        try {
+            this.plugin.rcpt(cb, this.connection, [new Address('<matt>')]);
+        }
+        catch (e) {
+            test.equal(e.message, 'Invalid domain in address: matt');
+            test.done();
+        }
+    },
+}
+
+
+
 
 exports.rcpt_redis = {
     setUp : _set_up_redis,
@@ -101,12 +116,11 @@ exports.rcpt_redis = {
         if (this.plugin.redis_pings) {
             this.plugin.delete_route(addr.address());
             test.expect(2);
-            const cb = function (rc, msg) {
+            this.plugin.rcpt((rc, msg) => {
                 test.equal(rc, undefined);
                 test.equal(msg, undefined);
                 test.done();
-            }.bind(this);
-            this.plugin.rcpt(cb, this.connection, [addr]);
+            }, this.connection, [addr]);
         }
         else {
             console.error('ERROR: no redis available!');
@@ -119,62 +133,56 @@ exports.rcpt_redis = {
         if (this.plugin.redis_pings) {
             this.plugin.insert_route(addr.address(),'192.168.2.1');
             test.expect(2);
-            const cb = function (rc, msg) {
+            this.plugin.rcpt((rc, msg) => {
                 test.equal(rc, OK);
                 test.equal(msg, undefined);
                 test.done();
-            }.bind(this);
-            this.plugin.rcpt(cb, this.connection, [addr]);
+            }, this.connection, [addr]);
         }
         else {
             test.expect(0);
             test.done();
         }
     },
-};
+}
 
 exports.get_mx_file = {
     setUp : _set_up_file,
     'email address file hit' : function (test) {
         test.expect(2);
-        const cb = function (rc, mx) {
-            test.equal(rc, OK);
-            test.equal(mx, '192.168.1.1');
-            test.done();
-        };
 
         this.plugin.route_list = {'matt@example.com': '192.168.1.1'};
         const addr = new Address('<matt@example.com>');
-        this.plugin.get_mx(cb, hmail, addr.host);
-    },
-    'email domain file hit' : function (test) {
-        test.expect(2);
-        const cb = function (rc, mx) {
-            test.equal(rc, OK);
-            test.equal(mx, '192.168.1.2');
-            test.done();
-        };
-
-        this.plugin.route_list = {'example.com': '192.168.1.2'};
-        const addr = new Address('<matt@example.com>');
-        this.plugin.get_mx(cb, hmail, addr.host);
-    },
-    'address preferred file' : function (test) {
-        test.expect(2);
-        const cb = function (rc, mx) {
+        this.plugin.get_mx((rc, mx) => {
             test.equal(rc, OK);
             test.equal(mx, '192.168.1.1');
             test.done();
-        };
-
+        }, hmail, addr.host);
+    },
+    'email domain file hit' : function (test) {
+        test.expect(2);
+        this.plugin.route_list = {'example.com': '192.168.1.2'};
+        const addr = new Address('<matt@example.com>');
+        this.plugin.get_mx((rc, mx) => {
+            test.equal(rc, OK);
+            test.equal(mx, '192.168.1.2');
+            test.done();
+        }, hmail, addr.host);
+    },
+    'address preferred file' : function (test) {
+        test.expect(2);
         this.plugin.route_list = {
             'matt@example.com': '192.168.1.1',
             'example.com': '192.168.1.2',
         };
         const addr = new Address('<matt@example.com>');
-        this.plugin.get_mx(cb, hmail, addr.host);
+        this.plugin.get_mx((rc, mx) => {
+            test.equal(rc, OK);
+            test.equal(mx, '192.168.1.1');
+            test.done();
+        }, hmail, addr.host);
     },
-};
+}
 
 exports.get_mx_redis = {
     setUp : _set_up_redis,
@@ -189,13 +197,12 @@ exports.get_mx_redis = {
         const addr = new Address('<matt@example.com>');
         test.expect(2);
         this.plugin.insert_route('matt@example.com','192.168.2.1');
-        const cb = function (rc, mx) {
+        this.plugin.get_mx((rc, mx) => {
             test.equal(rc, OK);
             test.equal(mx, '192.168.2.1');
             test.done();
             this.plugin.delete_route(addr.address());
-        }.bind(this);
-        this.plugin.get_mx(cb, hmail, addr.host);
+        }, hmail, addr.host);
     },
     'email domain redis hit' : function (test) {
         if (!this.plugin.redis_pings) {
@@ -207,13 +214,12 @@ exports.get_mx_redis = {
         const addr = new Address('<matt@example.com>');
         test.expect(2);
         this.plugin.insert_route(addr.address(),'192.168.2.2');
-        const cb = function (rc, mx) {
+        this.plugin.get_mx((rc, mx) => {
             test.equal(rc, OK);
             test.equal(mx, '192.168.2.2');
             test.done();
             this.plugin.delete_route(addr.address());
-        }.bind(this);
-        this.plugin.get_mx(cb, hmail, addr.host);
+        }, hmail, addr.host);
     },
     'address preferred redis' : function (test) {
         if (!this.plugin.redis_pings) {
@@ -227,14 +233,12 @@ exports.get_mx_redis = {
         this.plugin.insert_route(     'example.com','192.168.2.2');
         const addr = new Address('<matt@example.com>');
 
-        const cb = function (rc, mx) {
+        this.plugin.get_mx((rc, mx) => {
             test.equal(rc, OK);
             test.equal(mx, '192.168.2.1');
             test.done();
             this.plugin.delete_route('matt@example.com');
             this.plugin.delete_route(     'example.com');
-        }.bind(this);
-
-        this.plugin.get_mx(cb, hmail, addr.host);
+        }, hmail, addr.host);
     },
-};
+}

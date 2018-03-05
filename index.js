@@ -20,21 +20,20 @@ exports.register = function () {
 
     plugin.register_hook('rcpt',   'rcpt');
     plugin.register_hook('get_mx', 'get_mx');
-};
+}
 
 exports.load_rcpt_to_routes_ini = function () {
     const plugin = this;
     plugin.cfg = plugin.config.get('rcpt_to.routes.ini', function () {
         plugin.load_rcpt_to_routes_ini();
-    });
+    })
 
     if (!plugin.cfg.redis) plugin.cfg.redis = {};
-    const r = plugin.cfg.redis;
 
     plugin.cfg.redis.opts = {
-        host: r.server_ip || r.host || '127.0.0.1',
-        port: r.server_port || r.port || 6379,
-    };
+        host: plugin.cfg.redis.server_ip || plugin.cfg.redis.host || '127.0.0.1',
+        port: plugin.cfg.redis.server_port || plugin.cfg.redis.port || 6379,
+    }
 
     const lowered = {};
     if (plugin.cfg.routes) {
@@ -44,47 +43,40 @@ exports.load_rcpt_to_routes_ini = function () {
         }
         plugin.route_list = lowered;
     }
-};
+}
 
-exports.rcpt = function (next, connection, params) {
+exports.do_file_search = function (txn, address, domain, next) {
     const plugin = this;
-    const txn = connection.transaction;
-    if (!txn) { return next(); }
 
-    const rcpt = params[0];
-
-    // ignore RCPT TO without an @ first
-    if (!rcpt.host) {
-        txn.results.add(plugin, {fail: 'rcpt!domain'});
-        return next();
+    if (plugin.route_list[address]) {
+        txn.results.add(plugin, {pass: 'file.email'});
+        return next(OK);
     }
 
-    const address = rcpt.address().toLowerCase();
-    const domain = rcpt.host.toLowerCase();
+    if (plugin.route_list[domain])  {
+        txn.results.add(plugin, {pass: 'file.domain'});
+        return next(OK);
+    }
 
-    const do_file_search = function () {
-        if (plugin.route_list[address]) {
-            txn.results.add(plugin, {pass: 'file.email'});
-            return next(OK);
-        }
-        if (plugin.route_list[domain])  {
-            txn.results.add(plugin, {pass: 'file.domain'});
-            return next(OK);
-        }
+    // not permitted (by this rcpt_to plugin)
+    txn.results.add(plugin, {fail: 'file'});
+    return next();
+}
 
-        // not permitted (by this rcpt_to plugin)
-        txn.results.add(plugin, {fail: 'file'});
-        return next();
-    };
+exports.get_rcpt_address = function (rcpt) {
 
-    // if we can't use redis, try files and return
-    if (!plugin.redis_pings) { return do_file_search(); }
+    if (!rcpt.host) return [ rcpt.address().toLowerCase() ];
 
-    // redis connection open, try it
+    return [ rcpt.address().toLowerCase(), rcpt.host.toLowerCase() ];
+}
+
+exports.do_redis_search = function (connection, address, domain, next) {
+    const plugin = this;
+
     plugin.db.multi()
         .get(address)
         .get(domain)
-        .exec(function (err, replies) {
+        .exec((err, replies) => {
             if (err) {
                 connection.results.add(plugin, {err: err});
                 return next();
@@ -92,17 +84,79 @@ exports.rcpt = function (next, connection, params) {
 
             // got replies from Redis, any with an MX?
             if (replies[0]) {
-                txn.results.add(plugin, {pass: 'redis.email'});
-                return next(OK);
+                connection.transaction.results.add(plugin, {pass: 'redis.email'});
+                next(OK);
             }
-            if (replies[1]) {
-                txn.results.add(plugin, {pass: 'redis.domain'});
-                return next(OK);
+            else if (replies[1]) {
+                connection.transaction.results.add(plugin, {pass: 'redis.domain'});
+                next(OK);
             }
+            else {
+                // no redis record, try files
+                plugin.do_file_search(connection.transaction, address, domain, next);
+            }
+        })
+}
 
-            return do_file_search(); // no redis record, try files
-        });
-};
+exports.rcpt = function (next, connection, params) {
+    const plugin = this;
+    const txn = connection.transaction;
+    if (!txn) return next();
+
+    const [address, domain] = plugin.get_rcpt_address(params[0]);
+    if (!domain) {      // ignore RCPT TO without an @
+        txn.results.add(plugin, {fail: 'rcpt!domain'});
+        return next();
+    }
+
+    // if we can't use redis, try files
+    if (!plugin.redis_pings) {
+        plugin.do_file_search(txn, address, domain, next);
+        return;
+    }
+
+    // redis connection open, try it
+    plugin.do_redis_search(connection, address, domain, next);
+}
+
+exports.parse_mx = function (entry) {
+
+    const uri = new urlparser.parse(entry);
+
+    if ( uri.protocol == 'lmtp:' ) {
+        return {
+            exchange: uri.hostname,
+            port: uri.port,
+            using_lmtp: true,
+        }
+    }
+
+    if ( uri.protocol == 'smtp:' ) {
+        return {
+            exchange: uri.hostname,
+            port: uri.port,
+        }
+    }
+
+    return entry;
+}
+
+exports.get_mx_file = function (address, domain, next) {
+    const plugin = this;
+
+    // check email adress for route
+    if (plugin.route_list[address]) {
+        return next(OK, plugin.parse_mx(plugin.route_list[address]));
+    }
+
+    // check email domain for route
+    if (plugin.route_list[domain]) {
+        return next(OK, plugin.parse_mx(plugin.route_list[domain]));
+    }
+
+    plugin.loginfo(`using DNS MX for: ${address}`);
+    next();
+}
 
 exports.get_mx = function (next, hmail, domain) {
     const plugin = this;
@@ -113,75 +167,51 @@ exports.get_mx = function (next, hmail, domain) {
         address = hmail.todo.rcpt_to[0].address().toLowerCase();
     }
     else {
-        plugin.logerror('no rcpt from hmail, falling back to domain' );
+        plugin.logerror('no rcpt from hmail, using domain' );
     }
 
-    const do_file_search = function () {
-        const mx = {};
-        // check email adress for route
-        if (plugin.route_list[address]) {
-            const uri = new urlparser.parse(plugin.route_list[address]);
-            if ( uri.protocol == 'lmtp:' ) {
-                mx.exchange = uri.hostname;
-                mx.port = uri.port;
-                mx.using_lmtp = true;
-                return next(OK, mx);
-            }
-            else if ( uri.protocol == 'smtp:' ) {
-                mx.exchange = uri.hostname;
-                mx.port = uri.port;
-                return next(OK, mx);
-            }
-            else {
-                return next(OK, plugin.route_list[address]);
-            }
-        }
-
-        // check email domain for route
-        if (plugin.route_list[domain]) {
-            return next(OK, plugin.route_list[domain]);
-        }
-
-        plugin.loginfo(`using DNS MX for: ${address}`);
-        return next();
-    };
-
     // if we can't use redis, try files and return
-    if (!plugin.redis_pings) { return do_file_search(); }
+    if (!plugin.redis_pings) {
+        plugin.get_mx_file(address, domain, next);
+        return;
+    }
 
     // redis connection open, try it
     plugin.db.multi()
         .get(address)
         .get(domain)
-        .exec(function (err, replies) {
+        .exec((err, replies) => {
             if (err) {
                 plugin.logerror(err);
                 return next();
             }
 
             // got replies from Redis, any with an MX?
-            if (replies[0]) { return next(OK, replies[0]); }
-            if (replies[1]) { return next(OK, replies[1]); }
+            if (replies[0]) return next(OK, plugin.parse_mx(replies[0]));
+            if (replies[1]) return next(OK, plugin.parse_mx(replies[1]));
 
-            return do_file_search(); // no redis record, try files
-        });
-};
+            // no redis record, try files
+            plugin.get_mx_file(address, domain, next);
+        })
+}
 
 exports.insert_route = function (email, route) {
     // for importing, see http://redis.io/topics/mass-insert
-    if (!this.db || !this.redis_pings) { return false; }
+    if (!this.db || !this.redis_pings) return false;
+
     this.db.set(email, route);
-};
+}
 
 exports.delete_route = function (email, cb) {
     if (!this.redis_pings) {
         if (cb) cb();
         return false;
     }
+
     if (cb) {
         this.db.del(email, cb);
     }
     else {
         this.db.del(email);
     }
-};
+}
