@@ -42,6 +42,7 @@ function _set_up_redis (done) {
 
     this.plugin.register();
     this.plugin.server = { notes: { } };
+    if (this.plugin.redisCfg.opts === undefined) this.plugin.redisCfg.opts = {}
     this.plugin.redisCfg.opts.retry_strategy = function (options) {
         return;
     };
