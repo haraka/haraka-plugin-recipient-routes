@@ -1,6 +1,6 @@
 {
   "name": "haraka-plugin-recipient-routes",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Haraka plugin that validates and routes mail based on recipient domain or address",
   "main": "index.js",
   "scripts": {
@@ -26,11 +26,11 @@
   "devDependencies": {
     "eslint": ">=3",
     "eslint-plugin-haraka": "*",
-    "haraka-test-fixtures": "*",
+    "haraka-test-fixtures": "^1.0.29",
     "nodeunit": "*"
   },
   "dependencies": {
-    "haraka-plugin-redis": "*",
+    "haraka-plugin-redis": ">=1.0.11",
     "url": "^0.11.0"
   }
 }
