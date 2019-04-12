@@ -26,11 +26,11 @@
   "devDependencies": {
     "eslint": ">=3",
     "eslint-plugin-haraka": "*",
-    "haraka-test-fixtures": "^1.0.29",
+    "haraka-test-fixtures": "*",
     "nodeunit": "*"
   },
   "dependencies": {
-    "haraka-plugin-redis": ">=1.0.11",
+    "haraka-plugin-redis": "*",
     "url": "^0.11.0"
   }
 }
