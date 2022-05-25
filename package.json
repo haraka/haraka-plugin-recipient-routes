@@ -6,7 +6,8 @@
   "scripts": {
     "lint": "npx eslint *.js test",
     "lintfix": "npx eslint --fix *.js test",
-    "test": "npx mocha"
+    "test": "npx mocha",
+    "versions": "npx dependency-version-checker check"
   },
   "repository": {
     "type": "git",
@@ -31,7 +32,6 @@
   },
   "dependencies": {
     "haraka-plugin-redis": "2",
-    "redis": "4",
-    "url": "^0.11.0"
+    "redis": "4"
   }
 }
