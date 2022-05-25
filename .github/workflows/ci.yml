@@ -18,7 +18,6 @@ jobs:
   coverage:
     runs-on: ubuntu-latest
     services:
-      if: ${{ env.redis }}
       redis:
         image: redis
         ports:
