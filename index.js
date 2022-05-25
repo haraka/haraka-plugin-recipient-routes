@@ -49,18 +49,18 @@ exports.do_file_search = function (txn, address, domain, next) {
     const plugin = this;
 
     if (plugin.route_list[address]) {
-        txn.results.add(plugin, {pass: 'file.email'});
+        txn.results.add(plugin, { pass: 'file.email' });
         return next(OK);
     }
 
     if (plugin.route_list[domain])  {
-        txn.results.add(plugin, {pass: 'file.domain'});
+        txn.results.add(plugin, { pass: 'file.domain' });
         return next(OK);
     }
 
     // not permitted (by this rcpt_to plugin)
-    txn.results.add(plugin, {fail: 'file'});
-    return next();
+    txn.results.add(plugin, { fail: 'file' });
+    next();
 }
 
 exports.get_rcpt_address = function (rcpt) {
@@ -76,12 +76,8 @@ exports.do_redis_search = function (connection, address, domain, next) {
     plugin.db.multi()
         .get(address)
         .get(domain)
-        .exec((err, replies) => {
-            if (err) {
-                connection.results.add(plugin, {err: err});
-                return next();
-            }
-
+        .exec()
+        .then(replies => {
             // got replies from Redis, any with an MX?
             if (replies[0]) {
                 connection.transaction.results.add(plugin, {pass: 'redis.email'});
@@ -95,6 +91,10 @@ exports.do_redis_search = function (connection, address, domain, next) {
                 // no redis record, try files
                 plugin.do_file_search(connection.transaction, address, domain, next);
             }
+        })
+        .catch(err => {
+            connection.results.add(plugin, { err: err });
+            next();
         })
 }
 
@@ -180,18 +180,18 @@ exports.get_mx = function (next, hmail, domain) {
     plugin.db.multi()
         .get(address)
         .get(domain)
-        .exec((err, replies) => {
-            if (err) {
-                plugin.logerror(err);
-                return next();
-            }
-
+        .exec()
+        .then(replies => {
             // got replies from Redis, any with an MX?
             if (replies[0]) return next(OK, plugin.parse_mx(replies[0]));
             if (replies[1]) return next(OK, plugin.parse_mx(replies[1]));
 
             // no redis record, try files
             plugin.get_mx_file(address, domain, next);
+        })
+        .catch(err => {
+            plugin.logerror(err);
+            next();
         })
 }
 
@@ -202,16 +202,8 @@ exports.insert_route = function (email, route) {
     this.db.set(email, route);
 }
 
-exports.delete_route = function (email, cb) {
-    if (!this.redis_pings) {
-        if (cb) cb();
-        return false;
-    }
+exports.delete_route = function (email) {
+    if (!this.redis_pings) return false;
 
-    if (cb) {
-        this.db.del(email, cb);
-    }
-    else {
-        this.db.del(email);
-    }
+    this.db.del(email);
 }

@@ -1,7 +1,14 @@
 
+### 1.0.4 - 2022-05-24
+
+- dep(eslint): 4 -> 8
+- dep(pi-redis): * -> 2
+
+
 ### 1.0.3 - 2019-04-11
 
 - test fix for unitialized redis config block
+
 
 ### 1.0.2 - 2018-03-05
 
@@ -9,9 +16,11 @@
 - use es6 arrow functions
 - refactored the functions in rcpt() into separate functions (simplify, more testable)
 
+
 ### 1.0.1 - 2017-08-19
 
 - enable Redis install on AppVeyor CI testing
+
 
 ### 1.0.0 - 2017-07-28
 

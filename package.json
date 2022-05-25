@@ -4,8 +4,8 @@
   "description": "Haraka plugin that validates and routes mail based on recipient domain or address",
   "main": "index.js",
   "scripts": {
-    "lint": "node node_modules/.bin/eslint *.js test/**/*.js",
-    "lintfix": "node node_modules/.bin/eslint --fix *.js test/**/*.js",
+    "lint": "npx eslint *.js test",
+    "lintfix": "npx eslint --fix *.js test",
     "test": "node run_tests"
   },
   "repository": {
@@ -24,13 +24,14 @@
   },
   "homepage": "https://github.com/haraka/haraka-plugin-recipient-routes#readme",
   "devDependencies": {
-    "eslint": ">=3",
+    "eslint": "8",
     "eslint-plugin-haraka": "*",
     "haraka-test-fixtures": "*",
     "nodeunit": "*"
   },
   "dependencies": {
-    "haraka-plugin-redis": "*",
+    "haraka-plugin-redis": "2",
+    "redis": "4",
     "url": "^0.11.0"
   }
 }

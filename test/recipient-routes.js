@@ -33,44 +33,41 @@ function _set_up_file (done) {
 
 function _set_up_redis (done) {
 
-    this.server = {};
+    this.server = { notes: { } };
+
     this.plugin = new fixtures.plugin('index');
+    this.plugin.register()
 
     this.connection = fixtures.connection.createConnection();
     this.connection.transaction = fixtures.transaction.createTransaction();
     this.connection.transaction.results = new fixtures.results(this.connection);
 
-    this.plugin.register();
-    this.plugin.server = { notes: { } };
     if (this.plugin.redisCfg.opts === undefined) this.plugin.redisCfg.opts = {}
     this.plugin.redisCfg.opts.retry_strategy = function (options) {
         return;
     };
 
-    const t = this;
-    this.plugin.init_redis_shared(function (err) {
+    this.plugin.init_redis_shared(err => {
         if (err) {
             console.error(err.message);
             return done();
         }
 
-        t.plugin.db = t.plugin.server.notes.redis;
-        t.plugin.redis_ping(function (err2, result) {
-            if (err2) {
-                console.error(err2.message);
-                return done();
-            }
-            done(err2, result);
-        });
-    }, this.plugin.server);
+        this.plugin.db = this.server.notes.redis;
+        this.plugin.redis_ping().then(() => {
+            done()
+        }).catch(done)
+    }, this.server);
 }
 
 function _tear_down_redis (done) {
-    this.plugin.delete_route('matt@example.com', done);
+    this.plugin.delete_route('matt@example.com');
+    done()
 }
 
 exports.rcpt_file = {
     setUp : _set_up_file,
+    tearDown : _tear_down_redis,
     'miss' : function (test) {
         test.expect(2);
         function cb (rc, msg) {
@@ -105,8 +102,6 @@ exports.rcpt_file = {
         }
     },
 }
-
-
 
 
 exports.rcpt_redis = {
