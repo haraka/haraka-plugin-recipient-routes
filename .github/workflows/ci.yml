@@ -5,19 +5,55 @@ on:
 
 env:
   CI: true
+  redis: true
 
 jobs:
   lint:
     uses: haraka/.github/.github/workflows/lint.yml@master
 
+  #coverage:
+    #uses: haraka/.github/.github/workflows/coverage.yml@master
+    #secrets: inherit
+
   coverage:
-    uses: haraka/.github/.github/workflows/coverage.yml@master
-    secrets: inherit
+    runs-on: ubuntu-latest
+    services:
+      if: ${{ env.redis }}
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+    steps:
+    - uses: actions/setup-node@v3
+      name: Node ${{ env.node-version }}
+      with:
+        node-version: ${{ env.node-version }}
+
+    - uses: actions/checkout@v3
+
+    - run: npm install
+
+    - name: run coverage
+      run: |
+        npm install --no-save nyc
+        npx nyc --reporter=lcov npm test
+      env:
+        NODE_ENV: cov
+
+    - name: codecov
+      uses: codecov/codecov-action@v2
+
+    - name: Coveralls
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.github_token }}
+
 
   test:
     needs: lint
     runs-on: ${{ matrix.os }}
     services:
+      if: ${{ matrix.os == 'ubuntu-latest' }}
       redis:
         image: redis
         ports:
