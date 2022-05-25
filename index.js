@@ -6,20 +6,19 @@
 const urlparser = require('url');
 
 exports.register = function () {
-    const plugin = this;
-    plugin.inherits('haraka-plugin-redis');
+    this.inherits('haraka-plugin-redis');
 
-    plugin.cfg = {};
-    plugin.route_list={};
+    this.cfg = {};
+    this.route_list={};
 
-    plugin.load_rcpt_to_routes_ini();
-    plugin.merge_redis_ini();
+    this.load_rcpt_to_routes_ini();
+    this.merge_redis_ini();
 
-    plugin.register_hook('init_master',  'init_redis_plugin');
-    plugin.register_hook('init_child',   'init_redis_plugin');
+    this.register_hook('init_master',  'init_redis_plugin');
+    this.register_hook('init_child',   'init_redis_plugin');
 
-    plugin.register_hook('rcpt',   'rcpt');
-    plugin.register_hook('get_mx', 'get_mx');
+    this.register_hook('rcpt',   'rcpt');
+    this.register_hook('get_mx', 'get_mx');
 }
 
 exports.load_rcpt_to_routes_ini = function () {
@@ -46,20 +45,19 @@ exports.load_rcpt_to_routes_ini = function () {
 }
 
 exports.do_file_search = function (txn, address, domain, next) {
-    const plugin = this;
 
-    if (plugin.route_list[address]) {
-        txn.results.add(plugin, { pass: 'file.email' });
+    if (this.route_list[address]) {
+        txn.results.add(this, { pass: 'file.email' });
         return next(OK);
     }
 
-    if (plugin.route_list[domain])  {
-        txn.results.add(plugin, { pass: 'file.domain' });
+    if (this.route_list[domain])  {
+        txn.results.add(this, { pass: 'file.domain' });
         return next(OK);
     }
 
     // not permitted (by this rcpt_to plugin)
-    txn.results.add(plugin, { fail: 'file' });
+    txn.results.add(this, { fail: 'file' });
     next();
 }
 
@@ -71,52 +69,51 @@ exports.get_rcpt_address = function (rcpt) {
 }
 
 exports.do_redis_search = function (connection, address, domain, next) {
-    const plugin = this;
 
-    plugin.db.multi()
+    this.db.multi()
         .get(address)
         .get(domain)
         .exec()
         .then(replies => {
             // got replies from Redis, any with an MX?
             if (replies[0]) {
-                connection.transaction.results.add(plugin, {pass: 'redis.email'});
+                connection.transaction.results.add(this, {pass: 'redis.email'});
                 next(OK);
             }
             else if (replies[1]) {
-                connection.transaction.results.add(plugin, {pass: 'redis.domain'});
+                connection.transaction.results.add(this, {pass: 'redis.domain'});
                 next(OK);
             }
             else {
                 // no redis record, try files
-                plugin.do_file_search(connection.transaction, address, domain, next);
+                this.do_file_search(connection.transaction, address, domain, next);
             }
         })
         .catch(err => {
-            connection.results.add(plugin, { err: err });
+            connection.results.add(this, { err: err });
             next();
         })
 }
 
 exports.rcpt = function (next, connection, params) {
-    const plugin = this;
+
     const txn = connection.transaction;
     if (!txn) return next();
 
-    const [address, domain] = plugin.get_rcpt_address(params[0]);
+    const [address, domain] = this.get_rcpt_address(params[0]);
     if (!domain) {      // ignore RCPT TO without an @
-        txn.results.add(plugin, {fail: 'rcpt!domain'});
+        txn.results.add(this, {fail: 'rcpt!domain'});
         return next();
     }
 
     // if we can't use redis, try files
-    if (!plugin.redis_pings) {
-        plugin.do_file_search(txn, address, domain, next);
+    if (!this.redis_pings) {
+        this.do_file_search(txn, address, domain, next);
         return;
     }
 
     // redis connection open, try it
-    plugin.do_redis_search(connection, address, domain, next);
+    this.do_redis_search(connection, address, domain, next);
 }
 
 exports.parse_mx = function (entry) {
@@ -142,24 +139,22 @@ exports.parse_mx = function (entry) {
 }
 
 exports.get_mx_file = function (address, domain, next) {
-    const plugin = this;
 
     // check email adress for route
-    if (plugin.route_list[address]) {
-        return next(OK, plugin.parse_mx(plugin.route_list[address]));
+    if (this.route_list[address]) {
+        return next(OK, this.parse_mx(this.route_list[address]));
     }
 
     // check email domain for route
-    if (plugin.route_list[domain]) {
-        return next(OK, plugin.parse_mx(plugin.route_list[domain]));
+    if (this.route_list[domain]) {
+        return next(OK, this.parse_mx(this.route_list[domain]));
     }
 
-    plugin.loginfo(`using DNS MX for: ${address}`);
+    this.loginfo(`using DNS MX for: ${address}`);
     next();
 }
 
 exports.get_mx = function (next, hmail, domain) {
-    const plugin = this;
 
     // get email address
     let address = domain.toLowerCase();
@@ -167,30 +162,30 @@ exports.get_mx = function (next, hmail, domain) {
         address = hmail.todo.rcpt_to[0].address().toLowerCase();
     }
     else {
-        plugin.logerror('no rcpt from hmail, using domain' );
+        this.logerror('no rcpt from hmail, using domain' );
     }
 
     // if we can't use redis, try files and return
-    if (!plugin.redis_pings) {
-        plugin.get_mx_file(address, domain, next);
+    if (!this.redis_pings) {
+        this.get_mx_file(address, domain, next);
         return;
     }
 
     // redis connection open, try it
-    plugin.db.multi()
+    this.db.multi()
         .get(address)
         .get(domain)
         .exec()
         .then(replies => {
             // got replies from Redis, any with an MX?
-            if (replies[0]) return next(OK, plugin.parse_mx(replies[0]));
-            if (replies[1]) return next(OK, plugin.parse_mx(replies[1]));
+            if (replies[0]) return next(OK, this.parse_mx(replies[0]));
+            if (replies[1]) return next(OK, this.parse_mx(replies[1]));
 
             // no redis record, try files
-            plugin.get_mx_file(address, domain, next);
+            this.get_mx_file(address, domain, next);
         })
         .catch(err => {
-            plugin.logerror(err);
+            this.logerror(err);
             next();
         })
 }
