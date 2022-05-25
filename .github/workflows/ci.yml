@@ -35,8 +35,8 @@ jobs:
 
     - name: run coverage
       run: |
-        npm install --no-save nyc
-        npx nyc --reporter=lcov npm test
+        npm install --no-save c8
+        npx c8 --reporter=lcov npm test
       env:
         NODE_ENV: cov
 
