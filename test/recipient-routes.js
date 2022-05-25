@@ -85,12 +85,12 @@ describe('haraka-plugin-recipient-routes', function () {
       this.plugin.route_list = { 'matt@example.com': '192.168.1.1' };
       try {
         this.plugin.rcpt(function (rc, msg) {
-          console.log(arguments)
+          assert.ok(false)
           done()
-        }, this.connection, [new Address('<matt>')]);
+        }, this.connection, [ new Address('<matt>')] );
       }
       catch (e) {
-        assert.equal(e.message, 'Invalid domain in address: matt');
+        // an error is expected
         done()
       }
     })
