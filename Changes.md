@@ -4,7 +4,7 @@
 - dep(redis): 2 -> 4
 - dep(pi-redis): * -> 2
 - dep(eslint): 4 -> 8
-
+- test: node_unit -> mocha
 
 
 ### 1.0.3 - 2019-04-11
