@@ -44,21 +44,20 @@ exports.load_rcpt_to_routes_ini = function () {
   }
 }
 
-exports.do_file_search = function (txn, address, domain, next) {
+exports.do_file_search = async function (txn, address, domain) {
 
   if (this.route_list[address]) {
     txn.results.add(this, { pass: 'file.email' });
-    return next(OK);
+    return OK
   }
 
   if (this.route_list[domain])  {
     txn.results.add(this, { pass: 'file.domain' });
-    return next(OK);
+    return OK
   }
 
   // not permitted (by this rcpt_to plugin)
   txn.results.add(this, { fail: 'file' });
-  next();
 }
 
 exports.get_rcpt_address = function (rcpt) {
@@ -68,34 +67,33 @@ exports.get_rcpt_address = function (rcpt) {
   return [ rcpt.address().toLowerCase(), rcpt.host.toLowerCase() ];
 }
 
-exports.do_redis_search = function (connection, address, domain, next) {
+exports.do_redis_search = async function (connection, address, domain) {
 
-  this.db.multi()
+  const replies = await this.db.multi()
     .get(address)
     .get(domain)
     .exec()
-    .then(replies => {
-      // got replies from Redis, any with an MX?
-      if (replies[0]) {
-        connection.transaction.results.add(this, {pass: 'redis.email'});
-        next(OK);
-      }
-      else if (replies[1]) {
-        connection.transaction.results.add(this, {pass: 'redis.domain'});
-        next(OK);
-      }
-      else {
-        // no redis record, try files
-        this.do_file_search(connection.transaction, address, domain, next);
-      }
-    })
-    .catch(err => {
-      connection.results.add(this, { err: err });
-      next();
-    })
+
+  try {
+    // any replies from Redis with an MX?
+    if (replies[0]) {
+      connection.transaction.results.add(this, {pass: 'redis.email'});
+      return OK;
+    }
+    if (replies[1]) {
+      connection.transaction.results.add(this, {pass: 'redis.domain'});
+      return OK
+    }
+
+    // no redis record, try files
+    return await this.do_file_search(connection.transaction, address, domain);
+  }
+  catch (err) {
+    connection.results.add(this, { err: err });
+  }
 }
 
-exports.rcpt = function (next, connection, params) {
+exports.rcpt = async function (next, connection, params) {
 
   const txn = connection.transaction;
   if (!txn) return next();
@@ -108,12 +106,11 @@ exports.rcpt = function (next, connection, params) {
 
   // if we can't use redis, try files
   if (!this.redis_pings) {
-    this.do_file_search(txn, address, domain, next);
-    return;
+    return next(await this.do_file_search(txn, address, domain));
   }
 
   // redis connection open, try it
-  this.do_redis_search(connection, address, domain, next);
+  next(await this.do_redis_search(connection, address, domain))
 }
 
 exports.parse_mx = function (entry) {
@@ -154,7 +151,7 @@ exports.get_mx_file = function (address, domain, next) {
   next();
 }
 
-exports.get_mx = function (next, hmail, domain) {
+exports.get_mx = async function (next, hmail, domain) {
 
   // get email address
   let address = domain.toLowerCase();
@@ -172,22 +169,23 @@ exports.get_mx = function (next, hmail, domain) {
   }
 
   // redis connection open, try it
-  this.db.multi()
+  const replies = await this.db.multi()
     .get(address)
     .get(domain)
     .exec()
-    .then(replies => {
-      // got replies from Redis, any with an MX?
-      if (replies[0]) return next(OK, this.parse_mx(replies[0]));
-      if (replies[1]) return next(OK, this.parse_mx(replies[1]));
 
-      // no redis record, try files
-      this.get_mx_file(address, domain, next);
-    })
-    .catch(err => {
-      this.logerror(err);
-      next();
-    })
+  try {
+    // got replies from Redis, any with an MX?
+    if (replies[0]) return next(OK, this.parse_mx(replies[0]));
+    if (replies[1]) return next(OK, this.parse_mx(replies[1]));
+
+    // no redis record, try files
+    this.get_mx_file(address, domain, next);
+  }
+  catch (err) {
+    this.logerror(err);
+    next();
+  }
 }
 
 exports.insert_route = function (email, route) {
