@@ -12,5 +12,3 @@ jobs:
   publish:
     uses: haraka/.github/.github/workflows/publish.yml@master
     secrets: inherit
-    inputs:
-      redis: true
