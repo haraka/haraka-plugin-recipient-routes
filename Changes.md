@@ -1,13 +1,12 @@
 
 ### 1.0.4 - 2022-05-24
 
+- ci: replace travis/appveyor with GHA
 - dep(redis): 2 -> 4
 - dep(pi-redis): * -> 2
 - dep(eslint): 4 -> 8
 - dep(url): drop npm url package, use builtin
-- test: node_unit -> mocha
-- ci: replace travis/appveyor with GHA
-- ci(cov): replace nyc with c8
+- test: replace node_unit with mocha
 
 
 ### 1.0.3 - 2019-04-11
