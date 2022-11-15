@@ -89,7 +89,7 @@ exports.do_redis_search = async function (connection, address, domain) {
     return await this.do_file_search(connection.transaction, address, domain);
   }
   catch (err) {
-    connection.results.add(this, { err: err });
+    connection.results.add(this, { err });
   }
 }
 
