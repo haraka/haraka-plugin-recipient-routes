@@ -1,6 +1,5 @@
 ### Unreleased
 
-
 ### [1.1.0] - 2022-11-22
 
 - fix: use this.redis_ping during runtime, #26
