@@ -1,6 +1,5 @@
 ### Unreleased
 
-
 ### 1.0.4 - 2022-11-15
 
 - fix: run redis_ping when registering, fixes #23
