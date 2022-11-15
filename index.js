@@ -13,6 +13,7 @@ exports.register = function () {
 
   this.load_rcpt_to_routes_ini();
   this.merge_redis_ini();
+  this.redis_ping();
 
   this.register_hook('init_master',  'init_redis_plugin');
   this.register_hook('init_child',   'init_redis_plugin');
