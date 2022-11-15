@@ -3,6 +3,7 @@
 
 ### 1.0.4 - 2022-11-15
 
+- fix: run redis_ping when registering, fixes #23
 - ci: replace travis/appveyor with GHA
 - dep(redis): 2 -> 4
 - dep(pi-redis): * -> 2
