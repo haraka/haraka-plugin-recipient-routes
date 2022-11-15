@@ -1,6 +1,9 @@
+### Unreleased
 
-### 1.0.4 - 2022-05-24
 
+### 1.0.4 - 2022-11-15
+
+- fix: run redis_ping when registering, fixes #23
 - ci: replace travis/appveyor with GHA
 - dep(redis): 2 -> 4
 - dep(pi-redis): * -> 2
@@ -29,3 +32,7 @@
 ### 1.0.0 - 2017-07-28
 
 - imported from haraka/plugins/rcpt_to.routes
+
+
+
+[1.0.4]: https://github.com/haraka/haraka-plugin-recipient-routes/releases/tag/1.0.4

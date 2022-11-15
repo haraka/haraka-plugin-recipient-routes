@@ -13,6 +13,7 @@ exports.register = function () {
 
   this.load_rcpt_to_routes_ini();
   this.merge_redis_ini();
+  this.redis_ping();
 
   this.register_hook('init_master',  'init_redis_plugin');
   this.register_hook('init_child',   'init_redis_plugin');
@@ -89,7 +90,7 @@ exports.do_redis_search = async function (connection, address, domain) {
     return await this.do_file_search(connection.transaction, address, domain);
   }
   catch (err) {
-    connection.results.add(this, { err: err });
+    connection.results.add(this, { err });
   }
 }
 
