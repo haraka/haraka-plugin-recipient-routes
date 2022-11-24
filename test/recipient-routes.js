@@ -45,16 +45,9 @@ function redis_setup (done) {
   if (this.plugin.redisCfg.opts === undefined) this.plugin.redisCfg.opts = {}
   this.plugin.redisCfg.opts.retry_strategy = function (options) { return; }
 
-  this.plugin.init_redis_shared(err => {
-    if (err) {
-      console.error(err.message);
-      return done();
-    }
-
-    this.plugin.db = this.server.notes.redis;
-    this.plugin.redis_ping().then(() => {
-      done()
-    }).catch(done)
+  this.plugin.init_redis_plugin(err => {
+    if (err) console.error(err.message)
+    done()
   }, this.server);
 }
 
@@ -104,31 +97,29 @@ describe('haraka-plugin-recipient-routes', function () {
       this.plugin.db.quit()
     })
 
-    it('miss returns undefined on null', function (done) {
+    it('miss returns undefined on null', async function () {
 
       const addr = new Address('<matt@example.com>');
-      if (!this.plugin.redis_pings) {
+      if (! await this.plugin.redis_ping()) {
         console.error('ERROR: no redis available!');
-        return done();
+        return;
       }
 
       this.plugin.delete_route(addr.address());
       this.plugin.rcpt((rc, msg) => {
         assert.equal(rc, undefined);
         assert.equal(msg, undefined);
-        done();
       }, this.connection, [addr]);
     })
 
-    it('hit returns OK', function (done) {
-      if (!this.plugin.redis_pings) return done();
+    it('hit returns OK', async function () {
+      if (!await this.plugin.redis_ping()) return
 
       const addr = new Address('<matt@example.com>');
       this.plugin.insert_route(addr.address(),'192.168.2.1');
-      this.plugin.rcpt((rc, msg) => {
+      await this.plugin.rcpt((rc, msg) => {
         assert.equal(rc, OK);
         assert.equal(msg, undefined);
-        done();
       }, this.connection, [addr]);
     })
   })
@@ -178,43 +169,40 @@ describe('haraka-plugin-recipient-routes', function () {
       this.plugin.db.quit()
     })
 
-    it('email address redis hit', function (done) {
-      if (!this.plugin.redis_pings) return done();
+    it('email address redis hit', async function () {
+      if (! await this.plugin.redis_ping()) return
 
       const addr = new Address('<matt@example.com>');
       this.plugin.insert_route('matt@example.com','192.168.2.1');
-      this.plugin.get_mx((rc, mx) => {
+      await this.plugin.get_mx((rc, mx) => {
         assert.equal(rc, OK);
         assert.equal(mx, '192.168.2.1');
-        done();
         this.plugin.delete_route(addr.address());
       }, hmail, addr.host);
     })
 
-    it('email domain redis hit', function (done) {
-      if (!this.plugin.redis_pings) return done();
+    it('email domain redis hit', async function () {
+      if (!await this.plugin.redis_ping()) return
 
       const addr = new Address('<matt@example.com>');
       this.plugin.insert_route(addr.address(),'192.168.2.2');
-      this.plugin.get_mx((rc, mx) => {
+      await this.plugin.get_mx((rc, mx) => {
         assert.equal(rc, OK);
         assert.equal(mx, '192.168.2.2');
-        done();
         this.plugin.delete_route(addr.address());
       }, hmail, addr.host);
     })
 
-    it('address preferred redis', function (done) {
-      if (!this.plugin.redis_pings) return done();
+    it('address preferred redis', async function () {
+      if (!await this.plugin.redis_ping()) return
 
       this.plugin.insert_route('matt@example.com','192.168.2.1');
       this.plugin.insert_route(     'example.com','192.168.2.2');
       const addr = new Address('<matt@example.com>');
 
-      this.plugin.get_mx((rc, mx) => {
+      await this.plugin.get_mx((rc, mx) => {
         assert.equal(rc, OK);
         assert.equal(mx, '192.168.2.1');
-        done();
         this.plugin.delete_route('matt@example.com');
         this.plugin.delete_route(     'example.com');
       }, hmail, addr.host);

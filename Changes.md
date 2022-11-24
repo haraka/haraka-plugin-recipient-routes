@@ -4,6 +4,7 @@
 ### [1.1.0] - 2022-11-22
 
 - fix: use this.redis_ping during runtime, #26
+- test: more async tests
 
 
 ### 1.0.4 - 2022-11-15
@@ -15,7 +16,6 @@
 - dep(eslint): 4 -> 8
 - dep(url): drop npm url package, use builtin
 - test: replace node_unit with mocha
-- doc(Changes): add Unreleased marker
 - doc(README): update badge URLs
 
 
