@@ -13,7 +13,6 @@ exports.register = function () {
 
   this.load_rcpt_to_routes_ini();
   this.merge_redis_ini();
-  this.redis_ping();
 
   this.register_hook('init_master',  'init_redis_plugin');
   this.register_hook('init_child',   'init_redis_plugin');
@@ -106,11 +105,9 @@ exports.rcpt = async function (next, connection, params) {
   }
 
   // if we can't use redis, try files
-  if (!!this.db && ! await this.redis_ping() ) {
+  if (!this.db || ! await this.redis_ping() ) {
     return next(await this.do_file_search(txn, address, domain));
   }
-
-
 
   // redis connection open, try it
   next(await this.do_redis_search(connection, address, domain))
@@ -166,7 +163,7 @@ exports.get_mx = async function (next, hmail, domain) {
   }
 
   // if we can't use redis, try files and return
-  if (!! this.db && ! await this.redis_ping() ) {
+  if (! this.db || ! await this.redis_ping() ) {
     this.get_mx_file(address, domain, next);
     return;
   }
