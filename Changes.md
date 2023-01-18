@@ -1,6 +1,12 @@
 ### Unreleased
 
 
+### [1.1.0] - 2022-11-22
+
+- fix: use this.redis_ping during runtime, #26
+- test: more async tests
+
+
 ### 1.0.4 - 2022-11-15
 
 - fix: run redis_ping when registering, fixes #23
@@ -10,6 +16,7 @@
 - dep(eslint): 4 -> 8
 - dep(url): drop npm url package, use builtin
 - test: replace node_unit with mocha
+- doc(README): update badge URLs
 
 
 ### 1.0.3 - 2019-04-11
@@ -36,3 +43,4 @@
 
 
 [1.0.4]: https://github.com/haraka/haraka-plugin-recipient-routes/releases/tag/1.0.4
+[1.1.0]: https://github.com/haraka/haraka-plugin-recipient-routes/releases/tag/1.1.0
