@@ -109,7 +109,7 @@ exports.rcpt = async function (next, connection, params) {
   }
 
   // if we can't use redis, try files
-  if (this.cfg.redis.opts.disabled || (!!this.db && ! await this.redis_ping())) {
+  if (this.cfg.redis.opts.disabled || !this.db || !await this.redis_ping()) {
     return next(await this.do_file_search(txn, address, domain));
   }
 
@@ -167,7 +167,7 @@ exports.get_mx = async function (next, hmail, domain) {
   }
 
   // if we can't use redis, try files and return
-  if (this.cfg.redis.opts.disabled || (!!this.db && !await this.redis_ping())) {
+  if (this.cfg.redis.opts.disabled || !this.db || !await this.redis_ping()) {
     this.get_mx_file(address, domain, next);
     return;
   }
