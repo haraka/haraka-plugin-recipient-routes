@@ -50,7 +50,7 @@ The following options can be specified in `config/rcpt_to.routes.ini`:
 
 ### Redis
 
-The [redis] section has four optional settings (defaults shown):
+The [redis] section has optional settings (defaults shown):
 
     [redis]
     host=127.0.0.1
