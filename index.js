@@ -35,7 +35,7 @@ exports.load_rcpt_to_routes_ini = function () {
   plugin.cfg.redis.opts = {
     host: plugin.cfg.redis.server_ip || plugin.cfg.redis.host || '127.0.0.1',
     port: plugin.cfg.redis.server_port || plugin.cfg.redis.port || 6379,
-    enabled: plugin.cfg.redis.enabled || true
+    enabled: plugin.cfg.redis.enabled ?? true,
   }
 
   const lowered = {};
