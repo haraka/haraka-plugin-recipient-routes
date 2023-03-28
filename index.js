@@ -12,7 +12,7 @@ exports.register = function () {
   this.route_list={};
 
   this.load_rcpt_to_routes_ini();
-  if (!this.cfg.redis.opts.disabled) {
+  if (this.cfg.redis.opts.enabled) {
     this.merge_redis_ini();
     this.redis_ping();
 
@@ -35,7 +35,7 @@ exports.load_rcpt_to_routes_ini = function () {
   plugin.cfg.redis.opts = {
     host: plugin.cfg.redis.server_ip || plugin.cfg.redis.host || '127.0.0.1',
     port: plugin.cfg.redis.server_port || plugin.cfg.redis.port || 6379,
-    disabled: plugin.cfg.redis.disabled || false
+    enabled: plugin.cfg.redis.enabled || true
   }
 
   const lowered = {};
@@ -109,7 +109,7 @@ exports.rcpt = async function (next, connection, params) {
   }
 
   // if we can't use redis, try files
-  if (this.cfg.redis.opts.disabled || !this.db || !await this.redis_ping()) {
+  if (!this.cfg.redis.opts.enabled || !this.db || !await this.redis_ping()) {
     return next(await this.do_file_search(txn, address, domain));
   }
 
@@ -167,7 +167,7 @@ exports.get_mx = async function (next, hmail, domain) {
   }
 
   // if we can't use redis, try files and return
-  if (this.cfg.redis.opts.disabled || !this.db || !await this.redis_ping()) {
+  if (!this.cfg.redis.opts.enabled || !this.db || !await this.redis_ping()) {
     this.get_mx_file(address, domain, next);
     return;
   }
@@ -194,13 +194,13 @@ exports.get_mx = async function (next, hmail, domain) {
 
 exports.insert_route = function (email, route) {
   // for importing, see http://redis.io/topics/mass-insert
-  if (this.cfg.redis.opts.disabled || !this.db || !this.redis_pings) return false;
+  if (!this.cfg.redis.opts.enabled || !this.db || !this.redis_pings) return false;
 
   this.db.set(email, route);
 }
 
 exports.delete_route = function (email) {
-  if (this.cfg.redis.opts.disabled || !this.redis_pings) return false;
+  if (!this.cfg.redis.opts.enabled || !this.redis_pings) return false;
 
   this.db.del(email);
 }
