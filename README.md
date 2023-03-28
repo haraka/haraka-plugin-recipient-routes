@@ -11,7 +11,7 @@ Recipient Routes does recipient validation and MX routing.
 
 Recipients can be listed in the [routes] section of the config file
 `config/rcpt_to.routes.ini` or in Redis. If Redis is available, it is checked
-first. Then the config file is checked.  However, if Redis is disabled in
+first. Then the config file is checked.  However, if Redis is not enabled in
 settings then only the config file is checked.
 
 Entries can be email addresses or domains. If both are present, email
@@ -56,7 +56,7 @@ The [redis] section has four optional settings (defaults shown):
     host=127.0.0.1
     port=6379
     db=0
-    disabled=false
+    enabled=true
 
 ### Routes
 
