@@ -1,6 +1,6 @@
 ### Unreleased
 
-- add redis disabled option
+- add redis enabled setting
 
 ### [1.1.0] - 2022-11-22
 
