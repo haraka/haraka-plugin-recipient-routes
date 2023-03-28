@@ -25,7 +25,12 @@ exports.register = function () {
 
 exports.load_rcpt_to_routes_ini = function () {
   const plugin = this;
-  plugin.cfg = plugin.config.get('rcpt_to.routes.ini', function () {
+  plugin.cfg = plugin.config.get('rcpt_to.routes.ini', {
+      booleans: [
+          '+main.enabled',
+      ],
+  },
+  function () {
     plugin.load_rcpt_to_routes_ini();
   })
 
