@@ -1,6 +1,7 @@
 'use strict';
 
 const assert   = require('assert')
+const path     = require('path')
 
 const Address  = require('address-rfc2821').Address;
 const fixtures = require('haraka-test-fixtures');
@@ -23,6 +24,7 @@ const hmail = {
 function file_setup (done) {
   this.server = {};
   this.plugin = new fixtures.plugin('index');
+  this.plugin.config = this.plugin.config.module_config(path.resolve('test'));
 
   this.plugin.register();
   this.connection = fixtures.connection.createConnection();
@@ -61,12 +63,10 @@ describe('haraka-plugin-recipient-routes', function () {
         assert.equal(rc, undefined);
         assert.equal(msg, undefined);
         done()
-      }, this.connection, [ new Address('<matt@example.com>') ]);
+      }, this.connection, [ new Address('<miss@example.com>') ]);
     })
 
     it('hit returns OK', function (done) {
-      this.plugin.route_list = { 'matt@example.com': '192.168.1.1' };
-
       this.plugin.rcpt(function (rc, msg) {
         assert.equal(rc, OK);
         assert.equal(msg, undefined);
@@ -75,7 +75,6 @@ describe('haraka-plugin-recipient-routes', function () {
     })
 
     it('missing domain', function (done) {
-      this.plugin.route_list = { 'matt@example.com': '192.168.1.1' };
       try {
         this.plugin.rcpt(function (rc, msg) {
           assert.ok(false)
@@ -86,6 +85,14 @@ describe('haraka-plugin-recipient-routes', function () {
         // an error is expected
         done()
       }
+    })
+
+    it('lowers mixed case routes', function () {
+      assert.deepEqual(this.plugin.route_list, {
+        "bad@example.com": "127.0.0.1:26",
+        "matt@example.com": "192.168.76.66",
+        'mixed@example.com': '172.16.1.1',
+      })
     })
   })
 

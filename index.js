@@ -26,9 +26,9 @@ exports.register = function () {
 exports.load_rcpt_to_routes_ini = function () {
   const plugin = this;
   plugin.cfg = plugin.config.get('rcpt_to.routes.ini', {
-      booleans: [
-          '+redis.enabled',
-      ],
+    booleans: [
+      '+redis.enabled',
+    ],
   },
   function () {
     plugin.load_rcpt_to_routes_ini();
@@ -45,8 +45,8 @@ exports.load_rcpt_to_routes_ini = function () {
   const lowered = {};
   if (plugin.cfg.routes) {
     const keys = Object.keys(plugin.cfg.routes);
-    for (let i=0; i < keys.length; i++) {
-      lowered[keys[i].toLowerCase()] = plugin.cfg.routes[keys[i]];
+    for (const key of keys) {
+      lowered[key.toLowerCase()] = plugin.cfg.routes[key];
     }
     plugin.route_list = lowered;
   }
