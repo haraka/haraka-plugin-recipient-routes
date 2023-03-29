@@ -12,10 +12,12 @@ exports.register = function () {
   this.route_list={};
 
   this.load_rcpt_to_routes_ini();
-  this.merge_redis_ini();
+  if (this.cfg.redis.opts.enabled) {
+    this.merge_redis_ini();
 
-  this.register_hook('init_master',  'init_redis_plugin');
-  this.register_hook('init_child',   'init_redis_plugin');
+    this.register_hook('init_master',  'init_redis_plugin');
+    this.register_hook('init_child',   'init_redis_plugin');
+  }
 
   this.register_hook('rcpt',   'rcpt');
   this.register_hook('get_mx', 'get_mx');
@@ -23,7 +25,12 @@ exports.register = function () {
 
 exports.load_rcpt_to_routes_ini = function () {
   const plugin = this;
-  plugin.cfg = plugin.config.get('rcpt_to.routes.ini', function () {
+  plugin.cfg = plugin.config.get('rcpt_to.routes.ini', {
+      booleans: [
+          '+redis.enabled',
+      ],
+  },
+  function () {
     plugin.load_rcpt_to_routes_ini();
   })
 
@@ -32,6 +39,7 @@ exports.load_rcpt_to_routes_ini = function () {
   plugin.cfg.redis.opts = {
     host: plugin.cfg.redis.server_ip || plugin.cfg.redis.host || '127.0.0.1',
     port: plugin.cfg.redis.server_port || plugin.cfg.redis.port || 6379,
+    enabled: plugin.cfg.redis.enabled ?? true,
   }
 
   const lowered = {};
@@ -105,7 +113,7 @@ exports.rcpt = async function (next, connection, params) {
   }
 
   // if we can't use redis, try files
-  if (!this.db || ! await this.redis_ping() ) {
+  if (!this.cfg.redis.opts.enabled || !this.db || !await this.redis_ping()) {
     return next(await this.do_file_search(txn, address, domain));
   }
 
@@ -163,7 +171,7 @@ exports.get_mx = async function (next, hmail, domain) {
   }
 
   // if we can't use redis, try files and return
-  if (! this.db || ! await this.redis_ping() ) {
+  if (!this.cfg.redis.opts.enabled || !this.db || !await this.redis_ping()) {
     this.get_mx_file(address, domain, next);
     return;
   }
@@ -190,13 +198,13 @@ exports.get_mx = async function (next, hmail, domain) {
 
 exports.insert_route = function (email, route) {
   // for importing, see http://redis.io/topics/mass-insert
-  if (!this.db || !this.redis_pings) return false;
+  if (!this.cfg.redis.opts.enabled || !this.db || !this.redis_pings) return false;
 
   this.db.set(email, route);
 }
 
 exports.delete_route = function (email) {
-  if (!this.redis_pings) return false;
+  if (!this.cfg.redis.opts.enabled || !this.redis_pings) return false;
 
   this.db.del(email);
 }
