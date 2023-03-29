@@ -1,6 +1,11 @@
 ### Unreleased
 
-- add redis enabled setting
+
+### [1.2.0] - 2023-03-29
+
+- maint: replace for..i iterator with for..of, add test
+- feat: add redis enabled setting, #28
+
 
 ### [1.1.0] - 2022-11-22
 
@@ -45,3 +50,4 @@
 
 [1.0.4]: https://github.com/haraka/haraka-plugin-recipient-routes/releases/tag/1.0.4
 [1.1.0]: https://github.com/haraka/haraka-plugin-recipient-routes/releases/tag/1.1.0
+[1.2.0]: https://github.com/haraka/haraka-plugin-recipient-routes/releases/tag/1.2.0
