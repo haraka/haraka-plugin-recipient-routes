@@ -1,8 +1,9 @@
 ### Unreleased
 
-
 ### [1.2.1] - 2025-01-07
 
+- style: automated code formatting with prettier
+- ci: update local copy of ci.yml
 - dep(eslint): updated to v9
 - dep: eslint-plugin-haraka -> @haraka/eslint-config
 - lint: remove duplicate / stale rules from .eslintrc
@@ -23,7 +24,7 @@
 - fix: run redis_ping when registering, fixes #23
 - ci: replace travis/appveyor with GHA
 - dep(redis): 2 -> 4
-- dep(pi-redis): * -> 2
+- dep(pi-redis): \* -> 2
 - dep(eslint): 4 -> 8
 - dep(url): drop npm url package, use builtin
 - test: replace node_unit with mocha
@@ -46,7 +47,6 @@
 ### 1.0.0 - 2017-07-28
 
 - imported from haraka/plugins/rcpt_to.routes
-
 
 [1.0.4]: https://github.com/haraka/haraka-plugin-recipient-routes/releases/tag/1.0.4
 [1.1.0]: https://github.com/haraka/haraka-plugin-recipient-routes/releases/tag/1.1.0
