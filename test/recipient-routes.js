@@ -45,7 +45,7 @@ function redis_setup (done) {
   this.connection.transaction.results = new fixtures.results(this.connection);
 
   if (this.plugin.redisCfg.opts === undefined) this.plugin.redisCfg.opts = {}
-  this.plugin.redisCfg.opts.retry_strategy = function (options) { return; }
+  this.plugin.redisCfg.opts.retry_strategy = function () { return; }
 
   this.plugin.init_redis_plugin(err => {
     if (err) console.error(err.message)
@@ -76,12 +76,13 @@ describe('haraka-plugin-recipient-routes', function () {
 
     it('missing domain', function (done) {
       try {
-        this.plugin.rcpt(function (rc, msg) {
+        this.plugin.rcpt(function () {
           assert.ok(false)
           done()
         }, this.connection, [ new Address('<matt>')] );
       }
-      catch (e) {
+      catch (ignore) {
+        // console.error(ignore)
         // an error is expected
         done()
       }

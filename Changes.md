@@ -3,7 +3,10 @@
 
 ### [1.2.1] - 2025-01-07
 
-- populate [files] in package.json. Delete .npmignore.
+- dep(eslint): updated to v9
+- dep: eslint-plugin-haraka -> @haraka/eslint-config
+- lint: remove duplicate / stale rules from .eslintrc
+- populate [files] in package.json.
 
 ### [1.2.0] - 2023-03-29
 

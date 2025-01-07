@@ -44,8 +44,7 @@ exports.load_rcpt_to_routes_ini = function () {
 
   const lowered = {};
   if (plugin.cfg.routes) {
-    const keys = Object.keys(plugin.cfg.routes);
-    for (const key of keys) {
+    for (const key of Object.keys(plugin.cfg.routes)) {
       lowered[key.toLowerCase()] = plugin.cfg.routes[key];
     }
     plugin.route_list = lowered;
