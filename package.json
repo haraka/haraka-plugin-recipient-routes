@@ -1,7 +1,11 @@
 {
   "name": "haraka-plugin-recipient-routes",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Haraka plugin that validates and routes mail based on recipient domain or address",
+  "files": [
+    "CHANGELOG.md",
+    "config"
+  ],
   "main": "index.js",
   "scripts": {
     "lint": "npx eslint *.js test",
