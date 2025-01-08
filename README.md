@@ -6,7 +6,6 @@ Recipient Routes does recipient validation and MX routing.
 [![Code Climate][clim-img]][clim-url]
 [![NPM][npm-img]][npm-url]
 
-
 ## Recipient Validation
 
 Recipients can be listed in the [routes] section of the config file
@@ -29,7 +28,7 @@ rejected.
 
 ## MX Routing
 
-NOTE: MX routing by default routes *only* based on domains. To route for email
+NOTE: MX routing by default routes _only_ based on domains. To route for email
 addresses, you must set the preference `always_split=true` in
 'config/outbound.ini'.
 
@@ -93,12 +92,11 @@ Matt Simerson.
 Underwritten and graciously donated to the Haraka community
 by [Serious Mumbo, Inc.](http://seriousmumbo.com)
 
-
 <!-- leave these buried at the bottom of the document -->
+
 [ci-img]: https://github.com/haraka/haraka-plugin-recipient-routes/actions/workflows/ci.yml/badge.svg
 [ci-url]: https://github.com/haraka/haraka-plugin-recipient-routes/actions/workflows/ci.yml
 [clim-img]: https://codeclimate.com/github/haraka/haraka-plugin-recipient-routes/badges/gpa.svg
 [clim-url]: https://codeclimate.com/github/haraka/haraka-plugin-recipient-routes
 [npm-img]: https://nodei.co/npm/haraka-plugin-recipient-routes.png
 [npm-url]: https://www.npmjs.com/package/haraka-plugin-recipient-routes
-
