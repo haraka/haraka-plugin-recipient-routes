@@ -33,12 +33,15 @@
   },
   "homepage": "https://github.com/haraka/haraka-plugin-recipient-routes#readme",
   "devDependencies": {
-    "eslint": "9.17.0",
-    "@haraka/eslint-config": "2.0.2",
+    "@haraka/eslint-config": "^2.0.2",
     "haraka-test-fixtures": "1.3.8"
   },
   "dependencies": {
     "haraka-plugin-redis": "2.0.8",
     "redis": "4.7.0"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "semi": false
   }
 }
