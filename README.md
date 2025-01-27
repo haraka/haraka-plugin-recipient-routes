@@ -4,7 +4,6 @@ Recipient Routes does recipient validation and MX routing.
 
 [![Build Status][ci-img]][ci-url]
 [![Code Climate][clim-img]][clim-url]
-[![NPM][npm-img]][npm-url]
 
 ## Recipient Validation
 
@@ -98,5 +97,3 @@ by [Serious Mumbo, Inc.](http://seriousmumbo.com)
 [ci-url]: https://github.com/haraka/haraka-plugin-recipient-routes/actions/workflows/ci.yml
 [clim-img]: https://codeclimate.com/github/haraka/haraka-plugin-recipient-routes/badges/gpa.svg
 [clim-url]: https://codeclimate.com/github/haraka/haraka-plugin-recipient-routes
-[npm-img]: https://nodei.co/npm/haraka-plugin-recipient-routes.png
-[npm-url]: https://www.npmjs.com/package/haraka-plugin-recipient-routes
