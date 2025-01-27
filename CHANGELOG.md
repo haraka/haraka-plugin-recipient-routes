@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ### [1.2.2] - 2025-01-26
 
+- prettier: move config to package.json
 - doc: mv Changes.md CHANGELOG.md 
 - doc(CHANGELOG): fix release tag URLs
 
