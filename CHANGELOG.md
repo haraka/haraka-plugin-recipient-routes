@@ -1,4 +1,14 @@
+# Changelog
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/).
+
 ### Unreleased
+
+### [1.2.2] - 2025-01-26
+
+- prettier: move config to package.json
+- doc: mv Changes.md CHANGELOG.md
+- doc(CHANGELOG): fix release tag URLs
 
 ### [1.2.1] - 2025-01-07
 
@@ -48,7 +58,9 @@
 
 - imported from haraka/plugins/rcpt_to.routes
 
+[1.0.3]: https://github.com/haraka/haraka-plugin-recipient-routes/releases/tag/1.0.3
 [1.0.4]: https://github.com/haraka/haraka-plugin-recipient-routes/releases/tag/1.0.4
-[1.1.0]: https://github.com/haraka/haraka-plugin-recipient-routes/releases/tag/1.1.0
-[1.2.0]: https://github.com/haraka/haraka-plugin-recipient-routes/releases/tag/1.2.0
-[1.2.1]: https://github.com/haraka/haraka-plugin-recipient-routes/releases/tag/1.2.1
+[1.1.0]: https://github.com/haraka/haraka-plugin-recipient-routes/releases/tag/v1.1.0
+[1.2.0]: https://github.com/haraka/haraka-plugin-recipient-routes/releases/tag/v1.2.0
+[1.2.1]: https://github.com/haraka/haraka-plugin-recipient-routes/releases/tag/v1.2.1
+[1.2.2]: https://github.com/haraka/haraka-plugin-recipient-routes/releases/tag/v1.2.2
