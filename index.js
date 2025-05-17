@@ -3,7 +3,7 @@
 // validates incoming recipients against flat file & Redis
 // routes mail based on per-email or per-domain specified routes
 
-const urlparser = require('url')
+const { URL } = require('node:url');
 
 exports.register = function () {
   this.inherits('haraka-plugin-redis')
@@ -115,7 +115,7 @@ exports.rcpt = async function (next, connection, params) {
 }
 
 exports.parse_mx = function (entry) {
-  const uri = new urlparser.parse(entry)
+  const uri = new URL(entry);
 
   if (uri.protocol == 'lmtp:') {
     return {
