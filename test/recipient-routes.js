@@ -1,7 +1,7 @@
 'use strict'
 
-const assert = require('assert')
-const path = require('path')
+const assert = require('node:assert')
+const path = require('node:path')
 
 const Address = require('address-rfc2821').Address
 const fixtures = require('haraka-test-fixtures')

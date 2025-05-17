@@ -115,21 +115,27 @@ exports.rcpt = async function (next, connection, params) {
 }
 
 exports.parse_mx = function (entry) {
-  const uri = new URL(entry)
 
-  if (uri.protocol == 'lmtp:') {
-    return {
-      exchange: uri.hostname,
-      port: uri.port,
-      using_lmtp: true,
-    }
-  }
+  try {
+    const uri = new URL(entry)
 
-  if (uri.protocol == 'smtp:') {
-    return {
-      exchange: uri.hostname,
-      port: uri.port,
+    if (uri.protocol == 'lmtp:') {
+      return {
+        exchange: uri.hostname,
+        port: uri.port,
+        using_lmtp: true,
+      }
     }
+
+    if (uri.protocol == 'smtp:') {
+      return {
+        exchange: uri.hostname,
+        port: uri.port,
+      }
+    }
+
+  } catch (err) {
+    this.logerror(`parse_mx: ${err} on ${entry}`)
   }
 
   return entry
