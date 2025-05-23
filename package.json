@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "haraka-plugin-redis": "2.0.9",
-    "redis": "5.0.1"
+    "redis": "5.1.0"
   },
   "prettier": {
     "singleQuote": true,
