@@ -115,7 +115,6 @@ exports.rcpt = async function (next, connection, params) {
 }
 
 exports.parse_mx = function (entry) {
-
   try {
     const uri = new URL(entry)
 
@@ -133,7 +132,6 @@ exports.parse_mx = function (entry) {
         port: uri.port,
       }
     }
-
   } catch (err) {
     this.logerror(`parse_mx: ${err} on ${entry}`)
   }
