@@ -4,6 +4,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ### Unreleased
 
+### [1.3.1] - 2025-06-02
+
+- dep(redis): deleted, depends via h-p-redis
+
 ### [1.3.0] - 2025-05-17
 
 - chore: switch URL to use newer syntax
@@ -70,3 +74,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 [1.2.1]: https://github.com/haraka/haraka-plugin-recipient-routes/releases/tag/v1.2.1
 [1.2.2]: https://github.com/haraka/haraka-plugin-recipient-routes/releases/tag/v1.2.2
 [1.3.0]: https://github.com/haraka/haraka-plugin-recipient-routes/releases/tag/v1.3.0
+[1.3.1]: https://github.com/haraka/haraka-plugin-recipient-routes/releases/tag/v1.3.1
