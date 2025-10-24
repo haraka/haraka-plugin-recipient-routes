@@ -37,7 +37,7 @@
     "haraka-test-fixtures": "1.3.9"
   },
   "dependencies": {
-    "haraka-plugin-redis": "2.0.10"
+    "haraka-plugin-redis": "2.0.11"
   },
   "prettier": {
     "singleQuote": true,
