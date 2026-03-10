@@ -12,6 +12,7 @@ exports.register = function () {
   this.route_list = {}
 
   this.load_rcpt_to_routes_ini()
+
   if (this.cfg.redis.opts.enabled) {
     this.merge_redis_ini()
 
