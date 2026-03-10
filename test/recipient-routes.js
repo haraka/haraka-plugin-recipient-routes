@@ -21,17 +21,15 @@ const hmail = {
   },
 }
 
-function file_setup(done) {
+function file_setup() {
   this.server = {}
   this.plugin = new fixtures.plugin('index')
   this.plugin.config = this.plugin.config.module_config(path.resolve('test'))
 
   this.plugin.register()
   this.connection = fixtures.connection.createConnection()
-  this.connection.transaction = fixtures.transaction.createTransaction()
-  this.connection.transaction.results = new fixtures.results(this.connection)
+  this.connection.init_transaction()
 
-  done()
 }
 
 function redis_setup(done) {
@@ -41,8 +39,7 @@ function redis_setup(done) {
   this.plugin.register()
 
   this.connection = fixtures.connection.createConnection()
-  this.connection.transaction = fixtures.transaction.createTransaction()
-  this.connection.transaction.results = new fixtures.results(this.connection)
+  this.connection.init_transaction()
 
   if (this.plugin.redisCfg.opts === undefined) this.plugin.redisCfg.opts = {}
   this.plugin.redisCfg.opts.retry_strategy = function () {
@@ -59,36 +56,39 @@ describe('haraka-plugin-recipient-routes', function () {
   describe('rcpt file', function () {
     beforeEach(file_setup)
 
-    it('miss returns undefined on null', function (done) {
-      this.plugin.rcpt(
-        function (rc, msg) {
-          assert.equal(rc, undefined)
-          assert.equal(msg, undefined)
-          done()
-        },
-        this.connection,
-        [new Address('<miss@example.com>')],
-      )
+    it('miss returns undefined on null', async function () {
+      await new Promise((resolve) => {
+        this.plugin.rcpt(
+          function (rc, msg) {
+            assert.equal(rc, undefined)
+            assert.equal(msg, undefined)
+            resolve()
+          },
+          this.connection,
+          [new Address('<miss@example.com>')],
+        )
+      })
     })
 
-    it('hit returns OK', function (done) {
-      this.plugin.rcpt(
-        function (rc, msg) {
-          assert.equal(rc, OK)
-          assert.equal(msg, undefined)
-          done()
-        },
-        this.connection,
-        [new Address('<matt@example.com>')],
-      )
+    it('hit returns OK', async function () {
+      await new Promise((resolve) => {
+        this.plugin.rcpt(
+          function (rc, msg) {
+            assert.equal(rc, OK)
+            assert.equal(msg, undefined)
+            resolve()
+          },
+          this.connection,
+          [new Address('<matt@example.com>')],
+        )
+      })
     })
 
-    it('missing domain', function (done) {
+    it('missing domain', function () {
       try {
         this.plugin.rcpt(
           function () {
             assert.ok(false)
-            done()
           },
           this.connection,
           [new Address('<matt>')],
@@ -96,7 +96,6 @@ describe('haraka-plugin-recipient-routes', function () {
       } catch (ignore) {
         // console.error(ignore)
         // an error is expected
-        done()
       }
     })
 
@@ -117,86 +116,98 @@ describe('haraka-plugin-recipient-routes', function () {
       this.plugin.db.quit()
     })
 
-    it('miss returns undefined on null', async function () {
+    it('miss returns undefined on null', function (done) {
       const addr = new Address('<matt@example.com>')
-      if (!(await this.plugin.redis_ping())) {
-        console.error('ERROR: no redis available!')
-        return
-      }
+      this.plugin.redis_ping().then((v) => {
+        if (!v) {
+          console.error('ERROR: no redis available!')
+          return done()
+        }
 
-      this.plugin.delete_route(addr.address())
-      this.plugin.rcpt(
-        (rc, msg) => {
-          assert.equal(rc, undefined)
-          assert.equal(msg, undefined)
-        },
-        this.connection,
-        [addr],
-      )
+        this.plugin.delete_route(addr.address())
+        this.plugin.rcpt(
+          (rc, msg) => {
+            assert.equal(rc, undefined)
+            assert.equal(msg, undefined)
+            done()
+          },
+          this.connection,
+          [addr],
+        )
+      })
     })
 
-    it('hit returns OK', async function () {
-      if (!(await this.plugin.redis_ping())) return
+    it('hit returns OK', function (done) {
+      this.plugin.redis_ping().then((v) => {
+        if (!v) return done()
 
-      const addr = new Address('<matt@example.com>')
-      this.plugin.insert_route(addr.address(), '192.168.2.1')
-      await this.plugin.rcpt(
-        (rc, msg) => {
-          assert.equal(rc, OK)
-          assert.equal(msg, undefined)
-        },
-        this.connection,
-        [addr],
-      )
+        const addr = new Address('<matt@example.com>')
+        this.plugin.insert_route(addr.address(), '192.168.2.1')
+        this.plugin.rcpt(
+          (rc, msg) => {
+            assert.equal(rc, OK)
+            assert.equal(msg, undefined)
+            done()
+          },
+          this.connection,
+          [addr],
+        )
+      })
     })
   })
 
   describe('get_mx file', function () {
     beforeEach(file_setup)
 
-    it('email address file hit', function (done) {
+    it('email address file hit', async function () {
       this.plugin.route_list = { 'matt@example.com': '192.168.1.1' }
       const addr = new Address('<matt@example.com>')
-      this.plugin.get_mx(
-        (rc, mx) => {
-          assert.equal(rc, OK)
-          assert.equal(mx, '192.168.1.1')
-          done()
-        },
-        hmail,
-        addr.host,
-      )
+      await new Promise((resolve) => {
+        this.plugin.get_mx(
+          (rc, mx) => {
+            assert.equal(rc, OK)
+            assert.equal(mx, '192.168.1.1')
+            resolve()
+          },
+          hmail,
+          addr.host,
+        )
+      })
     })
 
-    it('email domain file hit', function (done) {
+    it('email domain file hit', async function () {
       this.plugin.route_list = { 'example.com': '192.168.1.2' }
       const addr = new Address('<matt@example.com>')
-      this.plugin.get_mx(
-        (rc, mx) => {
-          assert.equal(rc, OK)
-          assert.equal(mx, '192.168.1.2')
-          done()
-        },
-        hmail,
-        addr.host,
-      )
+      await new Promise((resolve) => {
+        this.plugin.get_mx(
+          (rc, mx) => {
+            assert.equal(rc, OK)
+            assert.equal(mx, '192.168.1.2')
+            resolve()
+          },
+          hmail,
+          addr.host,
+        )
+      })
     })
 
-    it('address preferred file', function (done) {
+    it('address preferred file', async function () {
       this.plugin.route_list = {
         'matt@example.com': '192.168.1.1',
         'example.com': '192.168.1.2',
       }
       const addr = new Address('<matt@example.com>')
-      this.plugin.get_mx(
-        (rc, mx) => {
-          assert.equal(rc, OK)
-          assert.equal(mx, '192.168.1.1')
-          done()
-        },
-        hmail,
-        addr.host,
-      )
+      await new Promise((resolve) => {
+        this.plugin.get_mx(
+          (rc, mx) => {
+            assert.equal(rc, OK)
+            assert.equal(mx, '192.168.1.1')
+            resolve()
+          },
+          hmail,
+          addr.host,
+        )
+      })
     })
   })
 
@@ -208,55 +219,64 @@ describe('haraka-plugin-recipient-routes', function () {
       this.plugin.db.quit()
     })
 
-    it('email address redis hit', async function () {
-      if (!(await this.plugin.redis_ping())) return
+    it('email address redis hit', function (done) {
+      this.plugin.redis_ping().then((v) => {
+        if (!v) return done()
 
-      const addr = new Address('<matt@example.com>')
-      this.plugin.insert_route('matt@example.com', '192.168.2.1')
-      await this.plugin.get_mx(
-        (rc, mx) => {
-          assert.equal(rc, OK)
-          assert.equal(mx, '192.168.2.1')
-          this.plugin.delete_route(addr.address())
-        },
-        hmail,
-        addr.host,
-      )
+        const addr = new Address('<matt@example.com>')
+        this.plugin.insert_route('matt@example.com', '192.168.2.1')
+        this.plugin.get_mx(
+          (rc, mx) => {
+            assert.equal(rc, OK)
+            assert.equal(mx, '192.168.2.1')
+            this.plugin.delete_route(addr.address())
+            done()
+          },
+          hmail,
+          addr.host,
+        )
+      })
     })
 
-    it('email domain redis hit', async function () {
-      if (!(await this.plugin.redis_ping())) return
+    it('email domain redis hit', function (done) {
+      this.plugin.redis_ping().then((v) => {
+        if (!v) return done()
 
-      const addr = new Address('<matt@example.com>')
-      this.plugin.insert_route(addr.address(), '192.168.2.2')
-      await this.plugin.get_mx(
-        (rc, mx) => {
-          assert.equal(rc, OK)
-          assert.equal(mx, '192.168.2.2')
-          this.plugin.delete_route(addr.address())
-        },
-        hmail,
-        addr.host,
-      )
+        const addr = new Address('<matt@example.com>')
+        this.plugin.insert_route(addr.address(), '192.168.2.2')
+        this.plugin.get_mx(
+          (rc, mx) => {
+            assert.equal(rc, OK)
+            assert.equal(mx, '192.168.2.2')
+            this.plugin.delete_route(addr.address())
+            done()
+          },
+          hmail,
+          addr.host,
+        )
+      })
     })
 
-    it('address preferred redis', async function () {
-      if (!(await this.plugin.redis_ping())) return
+    it('address preferred redis', function (done) {
+      this.plugin.redis_ping().then((v) => {
+        if (!v) return done()
 
-      this.plugin.insert_route('matt@example.com', '192.168.2.1')
-      this.plugin.insert_route('example.com', '192.168.2.2')
-      const addr = new Address('<matt@example.com>')
+        this.plugin.insert_route('matt@example.com', '192.168.2.1')
+        this.plugin.insert_route('example.com', '192.168.2.2')
+        const addr = new Address('<matt@example.com>')
 
-      await this.plugin.get_mx(
-        (rc, mx) => {
-          assert.equal(rc, OK)
-          assert.equal(mx, '192.168.2.1')
-          this.plugin.delete_route('matt@example.com')
-          this.plugin.delete_route('example.com')
-        },
-        hmail,
-        addr.host,
-      )
+        this.plugin.get_mx(
+          (rc, mx) => {
+            assert.equal(rc, OK)
+            assert.equal(mx, '192.168.2.1')
+            this.plugin.delete_route('matt@example.com')
+            this.plugin.delete_route('example.com')
+            done()
+          },
+          hmail,
+          addr.host,
+        )
+      })
     })
   })
 })
