@@ -4,6 +4,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ### Unreleased
 
+### [1.4.0] - 2026-05-17
+
+#### Added
+
+- 
+
+#### Fixed
+
+- 
+
+#### Changed
+
+- 
+
+#### Changed
+
+- convert callback tests to async/await wrappers (#39)
+
+
 ### [1.3.1] - 2025-06-02
 
 - dep(redis): deleted, depends via h-p-redis
@@ -75,3 +94,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 [1.2.2]: https://github.com/haraka/haraka-plugin-recipient-routes/releases/tag/v1.2.2
 [1.3.0]: https://github.com/haraka/haraka-plugin-recipient-routes/releases/tag/v1.3.0
 [1.3.1]: https://github.com/haraka/haraka-plugin-recipient-routes/releases/tag/v1.3.1
+[1.4.0]: https://github.com/haraka/haraka-plugin-recipient-routes/releases/tag/v1.4.0

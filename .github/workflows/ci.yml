@@ -10,7 +10,11 @@ env:
 jobs:
   lint:
     uses: haraka/.github/.github/workflows/lint.yml@master
+    permissions:
+      contents: read
 
   test:
     needs: [lint]
     uses: haraka/.github/.github/workflows/ubuntu.yml@master
+    permissions:
+      contents: read
