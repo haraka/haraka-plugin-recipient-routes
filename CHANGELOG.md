@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ### [1.4.0] - 2026-05-17
 
-- 
+-
 - convert callback tests to async/await wrappers (#39)
 
 ### [1.3.1] - 2025-06-02
