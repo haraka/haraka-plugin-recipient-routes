@@ -4,7 +4,7 @@ const assert = require('node:assert')
 const path = require('node:path')
 const { afterEach, beforeEach, describe, it } = require('node:test')
 
-const Address = require('@haraka/email-address').Address
+const { Address } = require('@haraka/email-address')
 const fixtures = require('haraka-test-fixtures')
 
 const hmail = {
