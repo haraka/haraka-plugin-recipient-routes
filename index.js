@@ -69,9 +69,9 @@ exports.do_file_search = async function (txn, address, domain) {
 }
 
 exports.get_rcpt_address = function (rcpt) {
-  if (!rcpt.host) return [rcpt.address().toLowerCase()]
+  if (!rcpt.host) return [rcpt.address.toLowerCase()]
 
-  return [rcpt.address().toLowerCase(), rcpt.host.toLowerCase()]
+  return [rcpt.address.toLowerCase(), rcpt.host.toLowerCase()]
 }
 
 exports.do_redis_search = async function (connection, address, domain) {
@@ -159,7 +159,7 @@ exports.get_mx = async function (next, hmail, domain) {
   // get email address
   let address = domain.toLowerCase()
   if (hmail && hmail.todo && hmail.todo.rcpt_to && hmail.todo.rcpt_to[0]) {
-    address = hmail.todo.rcpt_to[0].address().toLowerCase()
+    address = hmail.todo.rcpt_to[0].address.toLowerCase()
   } else {
     this.logerror('no rcpt from hmail, using domain')
   }
