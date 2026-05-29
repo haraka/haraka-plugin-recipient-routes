@@ -4,6 +4,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ### Unreleased
 
+- test: refactored against test-fixtures 1.7.0
+
 ### [1.4.0] - 2026-05-17
 
 - changed: replace address-rfc2821 with @haraka/email-address
