@@ -188,14 +188,11 @@ exports.get_mx = async function (next, hmail, domain) {
 
 exports.insert_route = function (email, route) {
   // for importing, see http://redis.io/topics/mass-insert
-  if (!this.cfg.redis.opts.enabled || !this.db || !this.redis_pings)
-    return false
-
-  this.db.set(email, route)
+  if (!this.cfg.redis.opts.enabled || !this.db) return false
+  return this.db.set(email, route)
 }
 
 exports.delete_route = function (email) {
-  if (!this.cfg.redis.opts.enabled || !this.redis_pings) return false
-
-  this.db.del(email)
+  if (!this.cfg.redis.opts.enabled || !this.db) return false
+  return this.db.del(email)
 }

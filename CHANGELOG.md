@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 ### Unreleased
 
 - test: refactored against test-fixtures 1.7.0
+- fix: insert_route/delete_route use `this.db` presence check
 
 ### [1.4.0] - 2026-05-17
 
