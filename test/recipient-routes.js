@@ -1,11 +1,10 @@
 'use strict'
 
 const assert = require('node:assert')
-const path = require('node:path')
 const { afterEach, beforeEach, describe, it } = require('node:test')
 
 const { Address } = require('@haraka/email-address')
-const fixtures = require('haraka-test-fixtures')
+const { makeConnection, makePlugin } = require('haraka-test-fixtures')
 
 const hmail = {
   todo: {
@@ -26,22 +25,16 @@ let server, plugin, connection
 
 const file_setup = () => {
   server = {}
-  plugin = new fixtures.plugin('index')
-  plugin.config = plugin.config.module_config(path.resolve('test'))
-
-  plugin.register()
-  connection = fixtures.connection.createConnection()
-  connection.init_transaction()
+  plugin = makePlugin('index', { configDir: __dirname })
+  connection = makeConnection({ withTxn: true })
 }
 
 const redis_setup = (t, done) => {
   server = { notes: {} }
 
-  plugin = new fixtures.plugin('index')
-  plugin.register()
+  plugin = makePlugin('index')
 
-  connection = fixtures.connection.createConnection()
-  connection.init_transaction()
+  connection = makeConnection({ withTxn: true })
 
   if (plugin.redisCfg.opts === undefined) plugin.redisCfg.opts = {}
   plugin.redisCfg.opts.retry_strategy = function () {

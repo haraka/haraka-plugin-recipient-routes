@@ -1,9 +1,8 @@
 # rcpt_to.routes
 
-Recipient Routes does recipient validation and MX routing.
+[![Test][ci-img]][ci-url] [![Cover][cov-img]][cov-url] [![Qlty][qlty-img]][qlty-url]
 
-[![Build Status][ci-img]][ci-url]
-[![Code Climate][clim-img]][clim-url]
+Recipient Routes does recipient validation and MX routing.
 
 ## Recipient Validation
 
@@ -95,5 +94,7 @@ by [Serious Mumbo, Inc.](http://seriousmumbo.com)
 
 [ci-img]: https://github.com/haraka/haraka-plugin-recipient-routes/actions/workflows/ci.yml/badge.svg
 [ci-url]: https://github.com/haraka/haraka-plugin-recipient-routes/actions/workflows/ci.yml
-[clim-img]: https://codeclimate.com/github/haraka/haraka-plugin-recipient-routes/badges/gpa.svg
-[clim-url]: https://codeclimate.com/github/haraka/haraka-plugin-recipient-routes
+[cov-img]: https://codecov.io/github/haraka/haraka-plugin-recipient-routes/coverage.svg
+[cov-url]: https://codecov.io/github/haraka/haraka-plugin-recipient-routes
+[qlty-img]: https://qlty.sh/gh/haraka/projects/haraka-plugin-recipient-routes/maintainability.svg
+[qlty-url]: https://qlty.sh/gh/haraka/projects/haraka-plugin-recipient-routes
